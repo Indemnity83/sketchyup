@@ -7,15 +7,17 @@ cd "$root"
 out=${1:-.local/showcase-render}
 mkdir -p "$out"
 out=$(realpath "$out")
-free -g
+timeout 10 free -g
 # Work directories must be fresh: the exporter never overwrites a snapshot.
 timeout 300 python3 docs/images/showcase/build_showcase.py "$out/model"
+timeout 30 python3 docs/images/showcase/sky_environment.py "$out/sky.hdr"
 timeout 30 python3 - "$out" <<'PYTHON'
 import json, math, pathlib, sys
 out=pathlib.Path(sys.argv[1])
-settings={"apiVersion":1,"width":1344,"height":1024,"samples":160,"seed":17,
- "camera":{"projection":"perspective","position":[-15,-33,18],"target":[5,1,1.2],
- "up":[0,0,1],"verticalFov":math.radians(40),"nearClip":.01,"farClip":1000}}
+settings={"apiVersion":1,"width":1440,"height":900,"samples":256,"seed":17,
+ "environment":{"path":str(out/"sky.hdr"),"strength":.65,"rotationDegrees":0},
+ "camera":{"projection":"perspective","position":[-10,-20,6],"target":[5,1,1.9],
+ "up":[0,0,1],"verticalFov":math.radians(43),"nearClip":.01,"farClip":1000}}
 (out/"settings.json").write_text(json.dumps(settings,indent=2)+"\n")
 PYTHON
 timeout 60 sketchyup-cli --input "$out/model/showcase.sketchyup" \
@@ -38,3 +40,14 @@ import json,sys
 r=json.load(open(sys.argv[1])); assert r["status"]=="succeeded",r
 print(json.dumps({k:r[k] for k in ("status","blenderVersionString","device","preset")},indent=2))
 PYTHON
+
+# Publish the actual adapter output, palette-quantized only for the README budget.
+if command -v magick >/dev/null; then IM=magick; else IM=convert; fi
+image_out=${2:-docs/images/render.png}
+timeout 60 "$IM" "$out/image.png" -strip -colors 256 -dither None \
+  -define png:compression-level=9 "PNG8:$image_out"
+bytes=$(stat -c %s "$image_out")
+if (( bytes > 500000 )); then
+  echo "render-showcase: $image_out is over 500 KB" >&2
+  exit 1
+fi

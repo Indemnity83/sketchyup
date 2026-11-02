@@ -168,7 +168,13 @@ shot() {
     esac
     sleep 2
   done
-  sleep 2
+  # Scene recall changes document state; save the disposable copy before capture.
+  # The command palette is saved before opening it instead.
+  if [[ $name != commands ]]; then
+    xdotool windowfocus --sync "$wid"
+    xdotool key --clearmodifiers ctrl+s
+  fi
+  sleep 3
   import -window root "$work/shots/$name.png"
   kill "$apid" 2>/dev/null || true
   wait "$apid" 2>/dev/null || true
@@ -186,7 +192,7 @@ shots=(
   "components|1|click:500,826;click:43,123;click:700,500;click:43,170;palette:Entity info;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
   "sheets|1|key:ctrl+alt+s;sleep:3;click:304,834;sleep:2;key:shift+z;move:640,884;sleep:3"
   "terrain|1|click:432,826;click:43,170;palette:Sun and shadows;move:640,884;sleep:3"
-  "commands|1|click:124,826;click:43,170;search:export;move:640,884;sleep:3"
+  "commands|1|click:124,826;click:43,170;key:ctrl+s;search:export;move:640,884;sleep:3"
   "section|1|click:320,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
   "interior|1|click:250,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
 )

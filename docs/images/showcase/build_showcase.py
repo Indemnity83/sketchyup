@@ -15,6 +15,9 @@ import subprocess
 import time
 from pathlib import Path
 
+from detail_showcase import add_details
+from terrazzo_texture import texture_png
+
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
 
@@ -233,8 +236,8 @@ def build(out):
         "year": 2026,
         "month": 4,
         "day": 15,
-        "hour": 10,
-        "minute": 0,
+        "hour": 16,
+        "minute": 30,
         "second": 0,
         "utcOffsetMinutes": -420,
     }
@@ -281,8 +284,27 @@ def build(out):
             asset=str(i),
             textureSize={"width": size, "height": size},
         )
+    b.add(
+        "asset.import",
+        name="court-terrazzo.png",
+        mediaType="image/png",
+        data=base64.b64encode(texture_png()).decode(),
+    )
+    b.material += 1
+    b.mats["Terrazzo"] = str(b.material)
+    b.add(
+        "material.create",
+        name="Terrazzo",
+        color=[1, 1, 1],
+        asset="8",
+        textureSize={"width": 1.2, "height": 1.2},
+    )
     for name, color, opacity in [
-        ("Ivory", [0.88, 0.86, 0.76], 1),
+        ("Ivory", [0.92, 0.91, 0.85], 1),
+        ("White", [0.95, 0.95, 0.91], 1),
+        ("Roof gray", [0.43, 0.46, 0.45], 1),
+        ("Linen", [0.85, 0.79, 0.64], 1),
+        ("Ochre", [0.68, 0.43, 0.15], 1),
         ("Concrete", [0.64, 0.63, 0.55], 1),
         ("Teal", [0.08, 0.38, 0.36], 1),
         ("Mustard", [0.88, 0.59, 0.16], 1),
@@ -304,7 +326,15 @@ def build(out):
     b.box("Living pavilion slab", 0, 0, 0, 11, 8, 0.5, "Concrete", "Structure")
     b.box("Bedroom wing slab", 11, -2, 0, 5, 10, 0.5, "Concrete", "Structure")
     b.box(
-        "Terrazzo living floor", 0.15, 0.15, 0.5, 10.7, 7.7, 0.04, "Ivory", "Structure"
+        "Terrazzo living floor",
+        0.15,
+        0.15,
+        0.5,
+        10.7,
+        7.7,
+        0.04,
+        "Terrazzo",
+        "Structure",
     )
     b.box("Bedroom floor", 11.1, -1.9, 0.5, 4.8, 9.8, 0.04, "Walnut", "Structure")
     for name, x, y, w, d in [
@@ -332,7 +362,7 @@ def build(out):
     ]:
         roof = [
             b.box(name + " wood soffit", x, y, z, w, d, 0.12, "Walnut"),
-            b.box(name + " roof", x, y, z + 0.12, w, d, 0.12, "Ivory"),
+            b.box(name + " roof", x, y, z + 0.12, w, d, 0.12, "Roof gray"),
         ]
         b.roofs.append(b.group(name + " canopy", roof, "Roof"))
     # Shared structural posts and beams; materials applied before component creation.
@@ -387,7 +417,7 @@ def build(out):
         holes=[[[0.08, 0, 0.08], [0.08, 0, 0.36], [0.36, 0, 0.36], [0.36, 0, 0.08]]],
     )
     b.add("geometry.push_pull", body=block, face="9", distance=0.16)
-    b.paint(block, "Ivory")
+    b.paint(block, "White")
     screen = b.component("Breeze block", [block], "Structure")
     b.move(screen[0], [-5.5, 2, 0.15])
     for row in range(5):
@@ -676,7 +706,7 @@ def build(out):
         edges=sources,
         steinerFill=True,
     )
-    b.paint(terrain, "Sand")
+    b.paint(terrain, "Grass")
     b.tag(terrain, "Landscape")
     b.add(
         "terrain.stamp_pad",
@@ -694,7 +724,7 @@ def build(out):
         radius=3,
         amount=0.25,
     )
-    b.paint(terrain, "Sand")
+    b.paint(terrain, "Grass")
     b.flush("terrain-grading")
     b.sync_ids()
     # Terrain is a container: paint its generated tile bodies through the public API.
@@ -706,7 +736,7 @@ def build(out):
     )
     for tile in desc["bodies"]:
         if tile["parent"] == terrain:
-            b.paint(tile["id"], "Sand")
+            b.paint(tile["id"], "Grass")
     path = b.face(
         "Driveway drape source",
         [
@@ -740,6 +770,9 @@ def build(out):
     for body in desc["bodies"]:
         if body["name"] == "Drape" and body["parent"] == "0":
             b.tag(body["id"], "Landscape")
+            for tile in desc["bodies"]:
+                if tile["parent"] == body["id"]:
+                    b.paint(tile["id"], "Asphalt")
 
     # Follow Me creates a pool handrail from a hexagonal section.
     profile = b.face(
@@ -823,6 +856,8 @@ def build(out):
     b.flush("arc-array")
     b.sync_ids()
 
+    add_details(b, terrain)
+
     # Dimensions and named section planes. Annotations are scene selective.
     for name, a, c, offset in [
         ("Pavilion width", [0, -0.6, 0.55], [11, -0.6, 0.55], [0, -0.7, 0]),
@@ -865,7 +900,7 @@ def build(out):
         name="Living cut",
         context="0",
         space="world",
-        plane={"normal": [0, 1, 0], "offset": -3.6},
+        plane={"normal": [0, 1, 0], "offset": -2.6},
         fill=True,
         edges=True,
         color=[0.74, 0.52, 0.28],
@@ -881,10 +916,10 @@ def build(out):
     )
     b.flush("annotations-sections")
     cameras = [
-        ("Hero", [5, 1, 1.2], -117, 25, 40, 40, False),
+        ("Hero", [5, 1, 1.0], -117, 29, 44, 40, False),
         ("Terrace", [6, 2.5, 1.8], -102, 6, 23, 55, False),
         ("Living", [2.8, 6.1, 1.7], -72, 2, 5.5, 70, False),
-        ("Section", [6, 4, 1.4], -115, 29, 34, 40, False),
+        ("Section", [5.1, 5.1, 1.3], -108, 27, 15.8, 47, False),
         ("Plan", [5, 3, 0.5], -90, 90, 28, 40, True),
         ("Site", [5, 1, 0], -55, 42, 47, 40, False),
         ("Furniture", [6.8, 2.8, 1.1], -100, 34, 8.5, 45, False),
@@ -910,7 +945,10 @@ def build(out):
                 "id": b.tags["Roof"],
                 "visible": name not in ("Plan", "Furniture", "Section"),
             },
-            {"id": b.tags["Landscape"], "visible": name not in ("Plan", "Furniture")},
+            {
+                "id": b.tags["Landscape"],
+                "visible": name not in ("Plan", "Furniture", "Section"),
+            },
         ]
         snapshot = {
             "camera": {
@@ -944,7 +982,7 @@ def build(out):
     b.add("saved_scene.recall", scene="1")
     b.add(
         "render_preset.create",
-        name="Court daylight",
+        name="Court late afternoon",
         width=1440,
         height=900,
         samples=64,

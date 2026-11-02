@@ -23,7 +23,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/hero-dark.png">
-  <img alt="An original midcentury courtyard home modeled in SketchyUp, with deep roof overhangs, pool terrace, breeze blocks and sun shadows" src="docs/images/hero-light.png">
+  <img alt="An original midcentury courtyard home modeled in SketchyUp, with a landscaped garden, pool terrace, white fascia, breeze blocks and afternoon shadows" src="docs/images/hero-light.png">
 </picture>
 
 ## What it does
@@ -39,8 +39,8 @@
 | | |
 | :---: | :---: |
 | <img alt="A configurable component selected, with its parameters in the side panel" src="docs/images/components.png"><br>**Configurable components** | <img alt="The dimensioned 1:50 floor plan, one of four documentation sheets" src="docs/images/sheets.png"><br>**Documentation sheets** |
-| <img alt="The house on sloping ground in the Site view, with the Sun and shadows panel open" src="docs/images/terrain.png"><br>**Terrain, sun and shadow** | <img alt="The command palette open over the model, listing matching commands" src="docs/images/commands.png"><br>**Every command a keystroke away (Ctrl+K)** |
-| <img alt="Section perspective through the furnished courtyard house" src="docs/images/section.png"><br>**Section perspective** | <img alt="Living room with stone fireplace, wood ceiling, teal sofa and mustard lounge chair" src="docs/images/interior.png"><br>**Interior modeling** |
+| <img alt="The landscaped site with draped driveway, gravel beds, shared plants and the afternoon Sun and shadows panel" src="docs/images/terrain.png"><br>**Terrain, sun and shadow** | <img alt="The command palette open over the model, listing matching commands" src="docs/images/commands.png"><br>**Every command a keystroke away (Ctrl+K)** |
+| <img alt="Close section perspective through the living room, fireplace and furnished kitchen" src="docs/images/section.png"><br>**Section perspective** | <img alt="Living room with stone fireplace, wood ceiling, teal sofa and mustard lounge chair" src="docs/images/interior.png"><br>**Interior modeling** |
 
 ## Install
 
