@@ -1078,6 +1078,10 @@ def build(out):
         "buildSeconds": round(time.monotonic() - b.start, 2),
         "componentShotBody": table[0],
     }
+    assert stats["bodies"] < 9500, (
+        "Keep headroom below the 10000-body measured drawing limit"
+    )
+    assert 25000 <= stats["vertices"] <= 60000, "Showcase detail budget changed"
     (out / "stats.json").write_text(json.dumps(stats, indent=2) + "\n")
     print(stats)
 

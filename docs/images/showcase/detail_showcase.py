@@ -619,9 +619,7 @@ def garden(b, terrain):
         (16, 11.6),
         (13, 11.6),
         (10, 11.6),
-        (7, 11.6),
         (3, 11.6),
-        (0, 11.6),
     ]
     place(
         b,
@@ -667,11 +665,11 @@ def garden(b, terrain):
                 "Leaf",
             )
         )
-    positions = [(-2.6, -10.8 + i * 0.85, -0.2) for i in range(13)] + [
-        (12.5 + i * 0.85, -10.8, -0.2) for i in range(9)
+    positions = [(-2.6, -10.8 + i * 1.1, -0.2) for i in range(10)] + [
+        (12.5 + i * 0.95, -10.8, -0.2) for i in range(8)
     ]
-    positions += [(19.8, -9 + i * 0.85, -0.05) for i in range(18)] + [
-        (4 + i * 0.9, 12, 0.7) for i in range(12)
+    positions += [(19.8, -9 + i * 1.1, -0.05) for i in range(14)] + [
+        (4 + i * 1.1, 12, 0.7) for i in range(10)
     ]
     place(b, "Ornamental grass", grass, positions)
     boulder = blob(b, "Faceted boulder", 0, 0, 0.28, 0.68, 0.65, "Concrete", 9)
