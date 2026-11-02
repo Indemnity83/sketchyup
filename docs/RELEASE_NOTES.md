@@ -75,7 +75,7 @@ The `.skp` importer applies the component definition limit. A face or a loose-ed
 
 ### Split-package rollback
 
-The optional `sketchyup-ifc` package requires the exact `sketchyup` version, so pacman refuses to install `sketchyup-1.6.1-1` while `sketchyup-ifc-1.7.0-1` is installed, and it changes nothing (D-071). Remove the helper first, then install the application, as in [Rollback](#rollback-to-161).
+The optional `sketchyup-ifc` package requires the exact `sketchyup` version, so pacman refuses to install `sketchyup-1.6.1-1` while `sketchyup-ifc-1.7.0-1` is installed, and it changes nothing (D-071). Remove the helper first, then install the application, as in [Rollback](#rollback-to-161-1).
 
 ### Versions
 
@@ -87,7 +87,7 @@ The optional `sketchyup-ifc` package requires the exact `sketchyup` version, so 
 | Transaction capabilities | `outcomeBytes` is 403030200 (1.6.1: 268812472). No field or shape changed |
 | Limits in the capability output | `componentDefinitionVertices`, `componentDefinitionFaces`, `componentDefinitionWires` and `componentDefinitionEdges` are new |
 | MCP, inspection, recipes and other public schemas | The transaction and headless-session contracts state the new `outcomeBytes`. The MCP contract and the tool reference list the two R111 commands. No shape changed; the contracts were regenerated with the project's generators |
-| Assistant provider | OpenAI `gpt-6-astra` over a ChatGPT-plan sign-in, with the 1.2.0 limits, as in 1.6.1. Corpus v6, unchanged in content; its `inputSha256` values are re-pinned for the 1.7.0 writer. The assistant's six pinned tool surfaces did not change. The offline checks pass: `provider_release_corpus`, `provider_release_score` and `assistant_tool_surface`. No live provider run was made in this preparation; the release candidate's record states the run it makes. |
+| Assistant provider | OpenAI `gpt-6-astra` over a ChatGPT-plan sign-in, with the 1.2.0 limits, as in 1.6.1. Corpus v6, unchanged in content; its `inputSha256` values are re-pinned for the 1.7.0 writer. The assistant's tool surfaces did not change: the corpus v6 manifest pins eight trial entries with five distinct `toolsSha256` values. The offline checks pass: `provider_release_corpus`, `provider_release_score` and `assistant_tool_surface`. No live provider run was made in this preparation; the release candidate's record states the run it makes. |
 | New third-party code | None |
 
 Qt, OpenGL and Blender requirements are unchanged from 1.6.1.
@@ -115,7 +115,7 @@ A document that is over the 1.6.1 limits does not open in 1.6.1, so copy such a 
 
 - **No budget is missed in the measurements above.** The modeled worst case is under the 3.75 GiB ceiling. Two refusals are limits by design, not misses: an edit over the 192 MiB history budget, and a transaction over the 128 MiB staging budget. The unique-limit acceptance suite is slow: 1,667 s under the sanitizer, at a peak of 3,977 MiB against the 4 GiB container cap.
 - **Not measured on hardware.** The frame times, history and file timings at the raised limits (D-091).
-- **Carried from 1.6.1, unchanged.** The STEP speed budgets, the render limits and the view test's cost, as listed in the [1.6.0 budgets](#160).
+- **Carried from 1.6.1, unchanged.** The IFC import of about 10,000 bodies (about 12 s against its 10 s budget), the STEP speed budgets, the render limits and the view test's cost, as listed in the [1.6.0 budgets](#160).
 
 ### Known limitations
 
