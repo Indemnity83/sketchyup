@@ -134,6 +134,16 @@ int main(int argc, char **argv) {
         check(doc.scenes().at(first)->snapshot == initial,
               "Native capture records chosen properties");
         check(tabs->isVisible() && tabs->count() == 1, "Scene appears at viewport bottom");
+        // With the scene tabs visible, the Select hint and the status line stack above the tab
+        // bar and do not overlap each other.
+        view->setTool(Viewport::Tool::Select);
+        view->grabFramebuffer();
+        const auto hint = view->paintedSelectHintRect();
+        const auto status = view->paintedStatusLineRect();
+        check(!hint.isEmpty() && !status.isEmpty(), "Select hint and status line painted");
+        check(!hint.intersects(status), "Select hint clears the status line");
+        check(!hint.intersects(tabs->geometry()) && !status.intersects(tabs->geometry()),
+              "Select hint and status line clear the scene tab bar");
         view->standardView(1);
         view->setFieldOfView(70);
         view->setClipPlane(std::array<double, 4>{0, 0, 1, -1});
