@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in SketchyUp does not work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please check the [support matrix](https://github.com/zygote55/sketchyup/blob/main/docs/SUPPORT_MATRIX.md) first: it lists known limits and untested configurations. For a security problem, follow [SECURITY.md](https://github.com/zygote55/sketchyup/blob/main/SECURITY.md) instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered steps. A small model you built yourself, or a `sketchyup-cli --script` file, helps a lot.
+      placeholder: |
+        1. Open ...
+        2. Choose ...
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: SketchyUp version
+      description: The output of `sketchyup --version`, or the package version (`pacman -Q sketchyup`).
+    validations:
+      required: true
+  - type: dropdown
+    id: session
+    attributes:
+      label: Display session
+      options:
+        - Wayland
+        - X11
+        - Not applicable (command line only)
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Distribution, desktop and GPU
+      placeholder: Arch Linux, Hyprland, Intel Arc (Mesa 26.2)
+  - type: textarea
+    id: logs
+    attributes:
+      label: Messages or logs
+      description: Any error text, import report or terminal output. This is formatted as code automatically.
+      render: text
