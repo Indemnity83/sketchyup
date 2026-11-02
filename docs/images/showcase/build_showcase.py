@@ -11,9 +11,9 @@ import base64
 import json
 import math
 import resource
-from pathlib import Path
 import subprocess
 import time
+from pathlib import Path
 
 resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
 resource.setrlimit(resource.RLIMIT_AS, (4 * 1024**3, 4 * 1024**3))
@@ -63,7 +63,7 @@ class Builder:
             args += ["--input", str(self.model)]
         with (self.out / (stem + ".log")).open("w") as log:
             result = subprocess.run(
-                args, stdout=log, stderr=subprocess.STDOUT, timeout=300
+                args, stdout=log, stderr=subprocess.STDOUT, timeout=300, check=False
             )
         if result.returncode:
             raise RuntimeError(
@@ -207,37 +207,37 @@ class Builder:
 
 def build(out):
     b = Builder(out)
-    style = dict(
-        mode="textured",
-        background=[0.93, 0.94, 0.92],
-        ground=[0.8, 0.79, 0.72],
-        front=[0.86, 0.85, 0.8],
-        back=[0.65, 0.68, 0.67],
-        groundVisible=False,
-        groundHeight=0,
-        gridVisible=False,
-        axesVisible=False,
-        edgesVisible=True,
-        edge=[0.23, 0.26, 0.24],
-        profiles=False,
-        profileWidth=1,
-        xrayOpacity=0.25,
-    )
-    solar = dict(
-        algorithm="noaa-meeus-geometric-v1",
-        enabled=True,
-        shadows=True,
-        latitude=32,
-        longitude=-110,
-        northDegrees=0,
-        year=2026,
-        month=4,
-        day=15,
-        hour=10,
-        minute=0,
-        second=0,
-        utcOffsetMinutes=-420,
-    )
+    style = {
+        "mode": "textured",
+        "background": [0.93, 0.94, 0.92],
+        "ground": [0.8, 0.79, 0.72],
+        "front": [0.86, 0.85, 0.8],
+        "back": [0.65, 0.68, 0.67],
+        "groundVisible": False,
+        "groundHeight": 0,
+        "gridVisible": False,
+        "axesVisible": False,
+        "edgesVisible": True,
+        "edge": [0.23, 0.26, 0.24],
+        "profiles": False,
+        "profileWidth": 1,
+        "xrayOpacity": 0.25,
+    }
+    solar = {
+        "algorithm": "noaa-meeus-geometric-v1",
+        "enabled": True,
+        "shadows": True,
+        "latitude": 32,
+        "longitude": -110,
+        "northDegrees": 0,
+        "year": 2026,
+        "month": 4,
+        "day": 15,
+        "hour": 10,
+        "minute": 0,
+        "second": 0,
+        "utcOffsetMinutes": -420,
+    }
     b.add("document.style", style=style)
     b.add("document.solar", solar=solar)
     for i, (name, parent, folder) in enumerate(
@@ -279,7 +279,7 @@ def build(out):
             name=name,
             color=[1, 1, 1],
             asset=str(i),
-            textureSize=dict(width=size, height=size),
+            textureSize={"width": size, "height": size},
         )
     for name, color, opacity in [
         ("Ivory", [0.88, 0.86, 0.76], 1),
@@ -466,7 +466,7 @@ def build(out):
             kind="stretch",
             member=member,
             expression="width",
-            data=dict(axis="x", at=1.2),
+            data={"axis": "x", "at": 1.2},
         )
     b.add(
         "component_parameter.drive",
@@ -474,7 +474,7 @@ def build(out):
         kind="position",
         member=parts[-1],
         expression="width - 240 mm",
-        data=dict(axis="x"),
+        data={"axis": "x"},
     )
     for member, at, expression in [
         (parts[2], 0.6, "width / 2 - 150 mm"),
@@ -486,7 +486,7 @@ def build(out):
             kind="stretch",
             member=member,
             expression=expression,
-            data=dict(axis="x", at=at),
+            data={"axis": "x", "at": at},
         )
     b.add(
         "component_parameter.drive",
@@ -494,7 +494,7 @@ def build(out):
         kind="position",
         member=parts[3],
         expression="width / 2 - 30 mm",
-        data=dict(axis="x"),
+        data={"axis": "x"},
     )
     b.move(cred[0], [4.3, 7.05, 0.54])
     b.flush("components")
@@ -558,7 +558,7 @@ def build(out):
     back = b.box("Raised back", 0, 1.25, 0.37, 0.7, 0.55, 0.10, "Wool")
     b.add(
         "geometry.transform_selection",
-        entities=[dict(body=back, kind="context", entity="0")],
+        entities=[{"body": back, "kind": "context", "entity": "0"}],
         matrix=[1, 0, 0, 0, 0, 0.866, 0.5, 0, 0, -0.5, 0.866, 0, 0, 0, 0, 1],
         pivot=[0, 1.25, 0.37],
         space="world",
@@ -571,7 +571,7 @@ def build(out):
 
     # Library sources built into this document; parameter panels work on reopen.
     table = b.library("dining-table", [6.2, 1.9, 0.54], "Furniture")
-    shelf = b.library("bookshelf", [8.6, 7.1, 0.54], "Furniture")
+    b.library("bookshelf", [8.6, 7.1, 0.54], "Furniture")
     cabinet = b.library("base-cabinet", [5.1, 6.7, 0.54], "Furniture")
     for x in [5.7, 6.3, 6.9, 7.5]:
         b.instance(cabinet, [x, 6.7, 0.54])
@@ -667,7 +667,7 @@ def build(out):
     sources = []
     for y, z in [(-12, -0.7), (-9, -0.45), (0, -0.1), (9, 0.5), (13, 0.9)]:
         edge = b.wire([-9, y, z], [21, y, z], "Terrain source")
-        sources.append(dict(body=edge, edge="1"))
+        sources.append({"body": edge, "edge": "1"})
         b.hide.append(edge)
     terrain = b.new()
     b.add(
@@ -681,7 +681,7 @@ def build(out):
     b.add(
         "terrain.stamp_pad",
         terrain=terrain,
-        footprint=dict(polygon=[[-6.5, -9], [16.7, -9], [16.7, 8.6], [-6.5, 8.6]]),
+        footprint={"polygon": [[-6.5, -9], [16.7, -9], [16.7, 8.6], [-6.5, 8.6]]},
         elevation=-0.15,
         mode="width",
         width=1.5,
@@ -725,7 +725,7 @@ def build(out):
         "terrain.drape",
         terrain=terrain,
         mode="overlay",
-        faces=[dict(body=path, face="9")],
+        faces=[{"body": path, "face": "9"}],
         lift=0.025,
     )
     b.hide.append(path)
@@ -815,7 +815,7 @@ def build(out):
     )
     b.add(
         "geometry.array_selection",
-        entities=[dict(body=slat, kind="context", entity="0")],
+        entities=[{"body": slat, "kind": "context", "entity": "0"}],
         mode="linear",
         delta=[0, 0.09, 0],
         count=12,
@@ -836,7 +836,8 @@ def build(out):
             name=name,
             kind="distance",
             anchors=[
-                dict(kind="edge", body=edge, edge="1", fraction=t) for t in [0, 1]
+                {"kind": "edge", "body": edge, "edge": "1", "fraction": t}
+                for t in [0, 1]
             ],
             offset=offset,
         )
@@ -854,7 +855,7 @@ def build(out):
             "annotation.create",
             name=name + f" {x} {y}",
             kind="label",
-            anchors=[dict(kind="edge", body=anchor, edge="1", fraction=0)],
+            anchors=[{"kind": "edge", "body": anchor, "edge": "1", "fraction": 0}],
             text=name,
             leader=False,
             textSize=10,
@@ -864,7 +865,7 @@ def build(out):
         name="Living cut",
         context="0",
         space="world",
-        plane=dict(normal=[0, 1, 0], offset=-3.6),
+        plane={"normal": [0, 1, 0], "offset": -3.6},
         fill=True,
         edges=True,
         color=[0.74, 0.52, 0.28],
@@ -874,7 +875,7 @@ def build(out):
         name="Plan cut",
         context="0",
         space="world",
-        plane=dict(normal=[0, 0, -1], offset=1.7),
+        plane={"normal": [0, 0, -1], "offset": 1.7},
         fill=True,
         edges=True,
     )
@@ -883,55 +884,62 @@ def build(out):
         ("Hero", [5, 1, 1.2], -117, 25, 40, 40, False),
         ("Terrace", [6, 2.5, 1.8], -102, 6, 23, 55, False),
         ("Living", [2.8, 6.1, 1.7], -72, 2, 5.5, 70, False),
-        ("Section", [6, 4, 1.4], -115, 29, 29, 40, False),
+        ("Section", [6, 4, 1.4], -115, 29, 34, 40, False),
         ("Plan", [5, 3, 0.5], -90, 90, 28, 40, True),
         ("Site", [5, 1, 0], -55, 42, 47, 40, False),
         ("Furniture", [6.8, 2.8, 1.1], -100, 34, 8.5, 45, False),
         ("Elevation", [5, 3, 1], -90, 0, 34, 40, True),
     ]
     for i, (name, target, yaw, pitch, dist, fov, ortho) in enumerate(cameras, 1):
-        vis = [dict(id=h, visible=False) for h in b.hide]
-        vis += [dict(id=h, visible=name != "Furniture") for h in b.front_posts]
+        vis = [{"id": h, "visible": False} for h in b.hide]
+        vis += [{"id": h, "visible": name != "Furniture"} for h in b.front_posts]
         vis += [
-            dict(
-                id=h, visible=name in ("Hero", "Terrace", "Living", "Site", "Elevation")
-            )
+            {
+                "id": h,
+                "visible": name in ("Hero", "Terrace", "Living", "Site", "Elevation"),
+            }
             for h in b.roofs
         ]
         tags = [
-            dict(id=b.tags["Annotation"], visible=name == "Plan"),
-            dict(
-                id=b.tags["Glazing"],
-                visible=name not in ("Furniture", "Plan", "Section"),
-            ),
-            dict(
-                id=b.tags["Roof"], visible=name not in ("Plan", "Furniture", "Section")
-            ),
-            dict(id=b.tags["Landscape"], visible=name not in ("Plan", "Furniture")),
+            {"id": b.tags["Annotation"], "visible": name == "Plan"},
+            {
+                "id": b.tags["Glazing"],
+                "visible": name not in ("Furniture", "Plan", "Section"),
+            },
+            {
+                "id": b.tags["Roof"],
+                "visible": name not in ("Plan", "Furniture", "Section"),
+            },
+            {"id": b.tags["Landscape"], "visible": name not in ("Plan", "Furniture")},
         ]
-        snapshot = dict(
-            camera=dict(
-                target=target,
-                yaw=yaw,
-                pitch=pitch,
-                distance=dist,
-                fieldOfView=fov,
-                orthographic=ortho,
-            ),
-            section=dict(
-                plane=None,
-                active=(
-                    [dict(context="0", section="1")]
+        snapshot = {
+            "camera": {
+                "target": target,
+                "yaw": yaw,
+                "pitch": pitch,
+                "distance": dist,
+                "fieldOfView": fov,
+                "orthographic": ortho,
+            },
+            "section": {
+                "plane": None,
+                "active": (
+                    [{"context": "0", "section": "1"}]
                     if name == "Section"
-                    else [dict(context="0", section="2")]
+                    else [{"context": "0", "section": "2"}]
                     if name == "Plan"
                     else []
                 ),
-            ),
-            visibility=dict(bodies=vis, tags=tags, hidden=[], showHidden=False),
-            style=dict(style, mode="monochrome" if name == "Plan" else "textured"),
-            solar=dict(solar, enabled=name not in ("Living", "Furniture", "Plan")),
-        )
+            },
+            "visibility": {
+                "bodies": vis,
+                "tags": tags,
+                "hidden": [],
+                "showHidden": False,
+            },
+            "style": dict(style, mode="monochrome" if name == "Plan" else "textured"),
+            "solar": dict(solar, enabled=name not in ("Living", "Furniture", "Plan")),
+        }
         b.add("saved_scene.create", name=name, snapshot=snapshot)
     b.add("saved_scene.recall", scene="1")
     b.add(
@@ -951,12 +959,12 @@ def build(out):
             "drawing_item.create",
             sheet=sheet,
             kind="text",
-            data=dict(
-                frame=dict(xMm=x, yMm=y, widthMm=w, heightMm=h),
-                text=value,
-                font=dict(family="DejaVu Sans", sizePt=size),
-                align="left",
-            ),
+            data={
+                "frame": {"xMm": x, "yMm": y, "widthMm": w, "heightMm": h},
+                "text": value,
+                "font": {"family": "DejaVu Sans", "sizePt": size},
+                "align": "left",
+            },
         )
 
     for sheet, name, number in [
@@ -969,7 +977,7 @@ def build(out):
             "drawing_sheet.create",
             name=name,
             number=number,
-            paper=dict(widthMm=594, heightMm=420),
+            paper={"widthMm": 594, "heightMm": 420},
             marginMm=12,
         )
         text(sheet, 20, 15, 550, 18, "SOLSTICE COURT  /  " + name.upper(), 20)
@@ -993,8 +1001,8 @@ def build(out):
             "drawing_view.create",
             name=title,
             sheet=sheet,
-            source=dict(kind="scene", scene=scene),
-            frame=dict(xMm=x, yMm=y, widthMm=w, heightMm=h),
+            source={"kind": "scene", "scene": scene},
+            frame={"xMm": x, "yMm": y, "widthMm": w, "heightMm": h},
             scaleDenominator=scale,
             content=content,
             hiddenLines=False,
@@ -1019,15 +1027,15 @@ def build(out):
         )
     )
     (out / "document.json").write_text(json.dumps(desc, indent=2) + "\n")
-    stats = dict(
-        vertices=sum(x["vertices"] for x in desc["bodies"]),
-        faces=sum(len(x["faces"]) for x in desc["bodies"]),
-        bodies=len(desc["bodies"]),
-        definitions=len(desc["definitions"]),
-        instances=len(desc["instances"]),
-        buildSeconds=round(time.monotonic() - b.start, 2),
-        componentShotBody=table[0],
-    )
+    stats = {
+        "vertices": sum(x["vertices"] for x in desc["bodies"]),
+        "faces": sum(len(x["faces"]) for x in desc["bodies"]),
+        "bodies": len(desc["bodies"]),
+        "definitions": len(desc["definitions"]),
+        "instances": len(desc["instances"]),
+        "buildSeconds": round(time.monotonic() - b.start, 2),
+        "componentShotBody": table[0],
+    }
     (out / "stats.json").write_text(json.dumps(stats, indent=2) + "\n")
     print(stats)
 

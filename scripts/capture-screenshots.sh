@@ -53,6 +53,10 @@ cleanup() {
   if [[ -n $xpid ]]; then
     kill "$xpid" 2>/dev/null || true
   fi
+  if [[ -n ${SHOWCASE_BUILD_OUT:-} ]]; then
+    mkdir -p "$SHOWCASE_BUILD_OUT/logs"
+    cp "$work"/*.log "$SHOWCASE_BUILD_OUT/logs/" 2>/dev/null || true
+  fi
   rm -rf "$work"
 }
 trap cleanup EXIT
@@ -105,7 +109,8 @@ if [[ -z $ready ]]; then
 fi
 
 # One fresh SketchyUp process per shot, sized to 1440x900 and driven with xdotool.
-# Steps: key:KEYS  type:TEXT  click:X,Y  move:X,Y  sleep:SECONDS  (separated by ;)
+# Steps: key:KEYS, type:TEXT, click:X,Y, move:X,Y, sleep:SECONDS,
+# palette:ACTION (invoke) or search:TEXT (leave open); separated by semicolons.
 # The viewport tab row is at y=826, the Model/Sheets header and the right panel
 # tabs move with the selection: the Info tab is at y=197 once an entity is selected.
 shot() {
@@ -123,10 +128,11 @@ shot() {
     sketchyup "$dir/model/showcase.sketchyup" > "$work/app-$name.log" 2>&1 &
   local apid=$!
   local wid
-  wid=$(timeout 30 xdotool search --sync --onlyvisible --pid "$apid" 2>/dev/null | head -1) || true
+  wid=$(timeout 90 xdotool search --sync --onlyvisible --pid "$apid" 2>/dev/null | head -1) || true
   if [[ -z $wid ]]; then
     kill "$apid" 2>/dev/null || true
-    echo "capture-screenshots: no window for $name; see $work/app-$name.log" >&2
+    echo "capture-screenshots: no window for $name" >&2
+    cat "$work/app-$name.log" >&2
     exit 1
   fi
   xdotool windowmove "$wid" 0 0 windowsize "$wid" 1440 900
@@ -136,15 +142,31 @@ shot() {
   IFS=';' read -ra parts <<< "$steps"
   for p in "${parts[@]}"; do
     case $p in
+      palette:*|search:*)
+        # A bare Xvfb has no window manager to focus this separate QDialog.
+        # Wait for it and focus its X window before sending any text.
+        xdotool windowfocus --sync "$wid"
+        xdotool key --clearmodifiers ctrl+k
+        local palette_wid
+        palette_wid=$(timeout 30 xdotool search --sync --onlyvisible --all --pid "$apid" --name '^Commands and model search$' | head -1)
+        xdotool windowfocus --sync "$palette_wid"
+        xdotool mousemove 600 220 click 1
+        xdotool type --clearmodifiers --delay 80 "${p#*:}"
+        if [[ $p == palette:* ]]; then
+          xdotool key --clearmodifiers Return
+          sleep 1
+          xdotool windowfocus --sync "$wid"
+        fi
+        ;;
       key:*) xdotool key --clearmodifiers "${p#key:}" ;;
-      type:*) xdotool type --delay 30 "${p#type:}" ;;
+      type:*) xdotool type --clearmodifiers --delay 80 "${p#type:}" ;;
       click:*) IFS=, read -r x y <<< "${p#click:}"; xdotool mousemove "$x" "$y" click 1 ;;
       move:*) IFS=, read -r x y <<< "${p#move:}"; xdotool mousemove "$x" "$y" ;;
       sleep:*) sleep "${p#sleep:}" ;;
       "") ;;
       *) echo "capture-screenshots: bad step in $name: $p" >&2; exit 1 ;;
     esac
-    sleep 1
+    sleep 2
   done
   sleep 2
   import -window root "$work/shots/$name.png"
@@ -159,14 +181,14 @@ shot() {
 # camera motion makes captures independent of the scene animation timing.
 # The table comes from the generator; collapse Entity info to reveal parameters.
 shots=(
-  "hero-light|1|click:124,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
-  "hero-dark|2|click:124,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
-  "components|1|click:500,826;click:43,123;click:700,500;click:43,170;key:ctrl+k;type:Entity info;key:Return;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
+  "hero-light|1|click:124,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
+  "hero-dark|2|click:124,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
+  "components|1|click:500,826;click:43,123;click:700,500;click:43,170;palette:Entity info;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
   "sheets|1|key:ctrl+alt+s;sleep:3;click:304,834;sleep:2;key:shift+z;move:640,884;sleep:3"
-  "terrain|1|click:432,826;click:43,170;key:ctrl+k;type:Sun and shadows;key:Return;move:640,884;sleep:3"
-  "commands|1|click:124,826;click:43,170;key:ctrl+k;type:export;move:640,884;sleep:3"
-  "section|1|click:320,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
-  "interior|1|click:250,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
+  "terrain|1|click:432,826;click:43,170;palette:Sun and shadows;move:640,884;sleep:3"
+  "commands|1|click:124,826;click:43,170;search:export;move:640,884;sleep:3"
+  "section|1|click:320,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
+  "interior|1|click:250,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
 )
 for entry in "${shots[@]}"; do
   [[ -z ${SHOWCASE_SHOTS:-} || ,$SHOWCASE_SHOTS, == *,${entry%%|*},* ]] || continue

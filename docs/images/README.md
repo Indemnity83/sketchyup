@@ -80,7 +80,7 @@ An optional mount preserves the native model and build statistics:
 
 ```sh
 mkdir -p .local/capture-build
-timeout 650 docker run --rm --network none \
+timeout 900 docker run --rm --network none \
   --memory 4g --memory-swap 4g --cpus 2 --user "$(id -u):$(id -g)" \
   -v "$PWD":/src:ro -v "$PWD/docs/images":/out \
   -v "$PWD/.local/capture-build":/build -e SHOWCASE_BUILD_OUT=/build \
@@ -117,6 +117,8 @@ when reproducing this model:
 - D-094: Select hints overlap the scene/status line. Capture clicks the Paint
   tool before model shots. A scene-tab click retains keyboard focus, so a bare
   `B` keystroke is not reliable there.
+- Under bare Xvfb, the separate command-palette dialog may not acquire X input
+  focus. Capture waits for its window and explicitly focuses it before typing.
 - Animated scene recall sometimes left the camera between views during capture.
   The isolated profile uses the existing `reducedMotion=true` setting and zero
   transition duration. The saved camera itself is unchanged.
@@ -135,6 +137,14 @@ when reproducing this model:
   segment count"**. The table ornament uses a supported partial arc.
 - Assigning a material to nonexistent body 1 in an otherwise empty document
   returns **"map::at"**. This is a poor diagnostic; the generator tracks allocated IDs.
+- Sparse terrain sources with `maxEdgeLength=3` produced **"Stamp pad refused;
+  nothing was changed: outside-outline (1)"**, with **"A footprint point is outside
+  the terrain; pads stay inside the terrain's outline and outside its holes."**
+  The generator leaves the optional edge-length limit unset for this sparse site.
+- More than 100 commands returns **"Batch must contain 1–100 commands"**. The
+  generator splits phases into batches of at most 100.
+- `asset.import` takes `mediaType`, not `mimeType`; the latter returns **"Unknown
+  command parameter"**. The generator uses the published schema.
 - Annotation names must be unique, even when their displayed text is identical:
   **"Annotation names must be bounded, trimmed and unique"**.
 - Terrain containers do not supply an inherited material to their generated tiles.
