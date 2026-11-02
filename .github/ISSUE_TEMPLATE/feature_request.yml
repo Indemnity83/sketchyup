@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest a new capability or an improvement.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The [roadmap](https://github.com/zygote55/sketchyup/blob/main/docs/PR_ROADMAP.md) and the [scope matrix](https://github.com/zygote55/sketchyup/blob/main/docs/SCOPE.md) show what is planned. Check them first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The task or workflow, and what gets in the way today.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would help?
+      description: How you picture it working. Screenshots or sketches are welcome.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Workarounds you have tried

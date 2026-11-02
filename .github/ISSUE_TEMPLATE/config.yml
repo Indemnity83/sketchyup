@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: User guide
+    url: https://github.com/zygote55/sketchyup/blob/main/docs/USER_GUIDE.md
+    about: Step-by-step instructions for the desktop app.
+  - name: Security problem
+    url: https://github.com/zygote55/sketchyup/security/advisories/new
+    about: Report a vulnerability privately instead of opening a public issue.
