@@ -452,6 +452,10 @@ class Viewport : public QOpenGLWidget {
     void setContextOverlay(QWidget *breadcrumb, QWidget *banner);
     // Rect (viewport coordinates) the label was last painted at; empty before the first frame.
     QRect paintedProjectionLabelRect() const { return projectionLabelPainted_; }
+    // Rects (viewport coordinates) of the status line and the Select tool hint as last painted;
+    // empty when not drawn. The scene tabs must not overlap either one.
+    QRect paintedStatusLineRect() const { return statusLinePainted_; }
+    QRect paintedSelectHintRect() const { return selectHintPainted_; }
     // Orthographic projection in the current view direction, at physical page scale.
     MeasuredExport renderMeasuredView(MeasuredPage page, MeasuredFormat format, bool raster,
                                       int dpi = 150);
@@ -924,6 +928,8 @@ class Viewport : public QOpenGLWidget {
     void rebuildSelectionOverlay();
     void drawSelectionOverlay();
     void paintSelection(QPainter &painter);
+    // The bottom edge of the bottom HUD lines: above the scene tabs when they are visible.
+    int hudBottom() const;
     void paintAnnotations(QPainter &painter);
     Document::SaveStamp annotationStamp_;
     std::map<Id, AnnotationMeasurement> annotationMeasurements_;
@@ -1201,6 +1207,8 @@ class Viewport : public QOpenGLWidget {
     QPointer<QWidget> contextBreadcrumb_;
     QPointer<QWidget> contextBanner_;
     QRect projectionLabelPainted_;
+    QRect statusLinePainted_;
+    QRect selectHintPainted_;
     QString graphics_;
     QMatrix4x4 matrix() const;
     std::pair<Vec3, Vec3> ray(QPointF p) const;

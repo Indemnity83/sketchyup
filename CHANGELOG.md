@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed (D-094, Minor, [triage](docs/verification/R089a-defect-triage.md)): with saved-scene tabs visible, the Select tool's hint no longer overlaps the status line at the bottom left of the viewport.
+
 ## 1.7.0 — 2026-11-02
 
 Tag `v1.7.0`; [GitHub release](https://github.com/zygote55/sketchyup/releases/tag/v1.7.0).

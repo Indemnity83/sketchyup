@@ -751,11 +751,15 @@ void Viewport::paintSelection(QPainter &p) {
         p.drawRect(QRectF(selectionStart_, selectionEnd_).normalized());
     }
 
+    selectHintPainted_ = {};
     if (tool_ == Tool::Select) {
         p.setPen(colors_.muted);
-        p.drawText(QRect(20, height() - 66, width() - 40, 38), Qt::TextWordWrap,
-                   "Ctrl: add · Shift: toggle · Drag →: inside / ←: crossing · Tab: traverse · "
-                   "Double-click: boundaries · Triple-click: connected");
+        const QRect hint(20, hudBottom() - 66, width() - 40, 38);
+        const QString text =
+            "Ctrl: add · Shift: toggle · Drag →: inside / ←: crossing · Tab: traverse · "
+            "Double-click: boundaries · Triple-click: connected";
+        selectHintPainted_ = p.boundingRect(hint, Qt::TextWordWrap, text);
+        p.drawText(hint, Qt::TextWordWrap, text);
     }
     p.restore();
 }
