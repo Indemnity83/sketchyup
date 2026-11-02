@@ -3,8 +3,7 @@
   "date": "2026-11-01",
   "procedure": "docs/M10_ACCEPTANCE.md, The 1.7.0 release; the 1.7.0 table answered row by row; the form of G-1.6.1",
   "version": "1.7.0",
-  "recordComplete": true,
-  "recordCompleteExcept": "the full-tier verdict (run 41386693018), in progress at the time of writing; the parent fills it in",
+  "recordComplete": "at RC1; the full tier (run 41386693018) passed on attempt 1; the parent added the verdict and ctest totals after the run completed",
   "gateStatus": "rc-recorded; not yet tagged or published",
   "ownerApproval": {
     "date": "2026-11-01",
@@ -49,7 +48,10 @@
       "pr": 564,
       "mergeCommit": "2bb0fea8",
       "finalHead": "808cac94",
-      "commands": ["component.delete_definition", "document.purge_unused"]
+      "commands": [
+        "component.delete_definition",
+        "document.purge_unused"
+      ]
     }
   ],
   "rc": {
@@ -164,12 +166,12 @@
     "headSha": "0496b4f17d43a7777d7a9c468e787af47f5192f6",
     "tier": "full",
     "attempt": 1,
-    "status": "in_progress",
-    "verdict": null,
-    "readAt": "2026-11-02T05:03:07Z (updatedAt)",
+    "status": "completed",
+    "verdict": "success",
+    "readAt": "2026-11-02T06:30:44Z (final, read by the parent)",
     "workloadJobsTotal": 13,
-    "workloadJobsSucceeded": 12,
-    "workloadJobsInProgress": 1,
+    "workloadJobsSucceeded": 13,
+    "workloadJobsInProgress": 0,
     "jobs": {
       "Plan": "success",
       "Development build and checks": "success",
@@ -179,11 +181,38 @@
       "SKP parser, helper and import": "success",
       "Blender interoperability": "success",
       "Native tests (six jobs)": "success",
-      "Sanitized builds": "in_progress",
-      "Fast tier (three matrix entries)": "skipped"
+      "Sanitized builds": "success",
+      "Fast tier (three matrix entries)": "skipped",
+      "CI verdict": "success"
     },
-    "ctestTotals": "not readable until the run completes (job logs); the parent records them",
-    "localPackageCheckCtest": "100% of 283 (checks/rc170-package-acceptance/output.log)"
+    "ctestTotals": {
+      "Development build and checks": [
+        "284/284",
+        "2/2",
+        "1/1"
+      ],
+      "Sanitized builds": [
+        "74/74",
+        "146/146",
+        "7/7",
+        "1/1"
+      ],
+      "Arch package acceptance": [
+        "283/283"
+      ],
+      "IFC library and helper": [
+        "10/10",
+        "8/8",
+        "6/6",
+        "1/1"
+      ],
+      "SKP parser, helper and import": [
+        "11/11",
+        "5/5"
+      ]
+    },
+    "localPackageCheckCtest": "100% of 283 (checks/rc170-package-acceptance/output.log)",
+    "completedAt": "2026-11-02T06:30:44Z"
   },
   "packageAcceptance": {
     "image": "sketchyup-build:20261002",
@@ -196,7 +225,10 @@
     "priorCliReadsSchemasUpTo": 35,
     "newerFixturesRefusedUnchanged": 0,
     "installedMigrations": 38,
-    "ctest": {"passed": 283, "total": 283},
+    "ctest": {
+      "passed": 283,
+      "total": 283
+    },
     "uniqueLimitsAcceptanceSeconds": 65.31,
     "purgeUnusedSeconds": 0.12
   },
@@ -242,7 +274,11 @@
       "stepResults": 29,
       "networkIsolated": true,
       "lifecycle": "pass",
-      "networkedRehearsal": {"stepResults": 29, "lifecycle": "pass", "networkIsolated": "rehearsal-not-checked"}
+      "networkedRehearsal": {
+        "stepResults": 29,
+        "lifecycle": "pass",
+        "networkIsolated": "rehearsal-not-checked"
+      }
     },
     "fresh": {
       "image": "sha256:624bdc7fc661...",
@@ -261,21 +297,40 @@
       "networkIsolated": true,
       "lifecycle": "pass",
       "sketchyupIfc": "not installed (IFC steps not run on Qt 6.8)",
-      "networkedRehearsal": {"stepResults": 27, "lifecycle": "pass", "networkIsolated": "rehearsal-not-checked"}
+      "networkedRehearsal": {
+        "stepResults": 27,
+        "lifecycle": "pass",
+        "networkIsolated": "rehearsal-not-checked"
+      }
     },
     "migrations": 38,
-    "upgradeFromPublished": {"versions": ["1.6.1-1", "1.7.0-1"], "passed": true},
+    "upgradeFromPublished": {
+      "versions": [
+        "1.6.1-1",
+        "1.7.0-1"
+      ],
+      "passed": true
+    },
     "d036": {
       "pages": 2,
       "syntaxErrors": 0,
       "qpdfCheck": "exit 0",
       "textSha256Prefix": "c4812bec",
-      "machines": ["pinned", "fresh", "qt68Reference"]
+      "machines": [
+        "pinned",
+        "fresh",
+        "qt68Reference"
+      ]
     }
   },
   "downgradeWindow": {
     "priorCli": "published sketchyup-cli 1.6.1-1 (readDocumentVersions 1 to 35, documentVersion 35)",
-    "machines": ["packageAcceptance", "pinned", "fresh", "qt68Reference"],
+    "machines": [
+      "packageAcceptance",
+      "pinned",
+      "fresh",
+      "qt68Reference"
+    ],
     "opensUnchangedPerOfficialMachine": 17,
     "committedFixturesOpened": [
       "presentation-v30",
@@ -293,12 +348,20 @@
       "exitStatus": 1,
       "fileUnchanged": true,
       "text": "{\"code\":\"INVALID_OPERATION\",\"error\":\"Document load exceeds document unique geometry limits: vertices would be 153,000 of 100,000\",\"status\":\"failed\"}",
-      "seenIn": ["packageAcceptance", "pinned", "fresh", "qt68Reference"]
+      "seenIn": [
+        "packageAcceptance",
+        "pinned",
+        "fresh",
+        "qt68Reference"
+      ]
     },
     "chunkOver32MiBCheck": "not done: at the 1.6.1 unique limits, geometry does not reach 32 MiB; the check would need non-geometry bulk; none was built (ADR 0162, 1.7.0 notes); verify-package.sh has no such check"
   },
   "rollback": {
-    "machines": ["pinned", "fresh"],
+    "machines": [
+      "pinned",
+      "fresh"
+    ],
     "withIfcInstalled": "pacman -U sketchyup-1.6.1-1 exits 1: 'warning: downgrading package sketchyup (1.7.0-1 => 1.6.1-1)'; 'error: failed to prepare transaction (could not satisfy dependencies)'; ':: installing sketchyup (1.6.1-1) breaks dependency sketchyup=1.7.0 required by sketchyup-ifc'; nothing changed",
     "afterRemovingIfc": "the same pacman -U installs sketchyup-1.6.1-1; its CLI validates the orthophoto document saved by 1.7.0 (valid true, documentVersion 35, exit 0) and the purged file (valid true, documentVersion 26, exit 0)",
     "referenceMachine": "no sketchyup-ifc; the rollback steps ran without the IFC step, with the same two validations, exit 0"
@@ -329,7 +392,10 @@
     "trialSeconds": 963.416,
     "trialSecondsAt161": 646.511,
     "model": "gpt-6-astra",
-    "scorerReRun": {"exitCode": 0, "outputByteIdentical": true}
+    "scorerReRun": {
+      "exitCode": 0,
+      "outputByteIdentical": true
+    }
   },
   "commits": {
     "boundMeasuredAt170": false,
@@ -339,11 +405,28 @@
   },
   "memory": {
     "status": "software only (R082w v3); D-091 open",
-    "modeledWorstCase": {"withExcess": {"bytes": 3839057776, "gib": 3.58}, "withHardwareDelta": {"bytes": 3989057776, "gib": 3.72}},
+    "modeledWorstCase": {
+      "withExcess": {
+        "bytes": 3839057776,
+        "gib": 3.58
+      },
+      "withHardwareDelta": {
+        "bytes": 3989057776,
+        "gib": 3.72
+      }
+    },
     "ceilingGib": 3.75,
-    "marginMiB": {"withoutHardwareDelta": 178.8, "withHardwareDelta": 35.7},
+    "marginMiB": {
+      "withoutHardwareDelta": 178.8,
+      "withHardwareDelta": 35.7
+    },
     "fourGiBOperationalCap": "unchanged",
-    "notMeasured": ["frame time of the file-loaded document (c)", "frame time and history of the whole-document edit (d)", "viewport frame time for the densest shape (b2)", "hardware at the raised limits (D-091)"]
+    "notMeasured": [
+      "frame time of the file-loaded document (c)",
+      "frame time and history of the whole-document edit (d)",
+      "viewport frame time for the densest shape (b2)",
+      "hardware at the raised limits (D-091)"
+    ]
   },
   "triage": {
     "atRc": "0496b4f1",
@@ -353,7 +436,12 @@
     "minor": 8,
     "limitation": 19,
     "newAtRc": [],
-    "addedWithPreparation": ["D-090 (Limitation)", "D-091 (Limitation)", "D-092 (Limitation)", "D-093 (Limitation)"],
+    "addedWithPreparation": [
+      "D-090 (Limitation)",
+      "D-091 (Limitation)",
+      "D-092 (Limitation)",
+      "D-093 (Limitation)"
+    ],
     "openAtRc": [
       "D-087 (Minor): a retained render can carry a terrain's notice outside its view",
       "D-090 (Limitation): staging budget for whole-document proposals; needs an owner decision",
@@ -369,7 +457,7 @@
     },
     {
       "area": "CI",
-      "answer": "not yet: the full tier (run 41386693018) is in progress; 12 of 13 workload jobs succeeded; Sanitized builds still running; CI verdict not concluded; the parent records the result and the ctest totals"
+      "answer": "yes: the full tier (run 41386693018) passed on attempt 1; all 13 workload jobs succeeded; CI verdict success; every ctest run 100%"
     },
     {
       "area": "Downgrade window",
@@ -414,7 +502,9 @@
     "Tool-call errors: the 1.6.1 record's contradiction about receipts does not arise in this run: the three failing receipts carry error.code CONTEXT_MISMATCH; the count of three agrees with 1.6.1.",
     "Owner words: quoted from the parent's brief; the freeze record words the permission as 'under the same permission and RC process as 1.6.1'; the owner's message is not in the repository."
   ],
-  "closedForOwner": ["UX section 21 amendment (PR #552): accepted by the owner on 2026-11-01"],
+  "closedForOwner": [
+    "UX section 21 amendment (PR #552): accepted by the owner on 2026-11-01"
+  ],
   "openForOwner": [
     "R107.d (geocoding) stays held; SCOPE C06 stays at Investigate",
     "buildingSMART hosted validation of the IFC export: the owner's own task, not a gate",
@@ -424,7 +514,6 @@
     "carried from G-1.6.0: the 1 s per-frame budget and the view test's cost; the frame credit for stills (no checkbox); the Qt range 6.8.0 to 6.12.0, where the orthophoto dialog and the guide viewer were not run on Qt 6.8"
   ],
   "followUpsForPublicationPr": [
-    "full-tier result: fill in run 41386693018's CI verdict and ctest totals once the run completes",
     "CHANGELOG: set the '1.7.0 — unreleased' heading to the release date at the tag",
     "PR_ROADMAP: the '1.7.0 release' entry reads as released",
     "R089.a: a line records the 1.7.0 release",
