@@ -205,9 +205,23 @@ def architecture(b):
     b.box("Entry sidelight", 0.075, 6.47, 0.58, 0.02, 0.8, 2.35, "Glass", "Glazing")
     for i in range(4):
         x = -5.65 + i * 0.85
-        b.box("Carport storage", x, 7.5, 0.07, 0.8, 0.45, 1.85, "Walnut", "Structure")
-        b.box(
-            "Storage pull", x + 0.68, 7.45, 0.9, 0.02, 0.05, 0.22, "Bronze", "Structure"
+        b.section_hide.append(
+            b.box(
+                "Carport storage", x, 7.5, 0.07, 0.8, 0.45, 1.85, "Walnut", "Structure"
+            )
+        )
+        b.section_hide.append(
+            b.box(
+                "Storage pull",
+                x + 0.68,
+                7.45,
+                0.9,
+                0.02,
+                0.05,
+                0.22,
+                "Bronze",
+                "Structure",
+            )
         )
     sconce = [
         b.box("Sconce plate", 0, 0, 0, 0.18, 0.06, 0.35, "Bronze"),

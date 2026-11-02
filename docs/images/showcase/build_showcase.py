@@ -38,6 +38,7 @@ class Builder:
         self.roofs = []
         self.annotations = []
         self.front_posts = []
+        self.section_hide = []
         self.start = time.monotonic()
 
     def add(self, command, **kw):
@@ -280,7 +281,7 @@ def build(out):
         b.add(
             "material.create",
             name=name,
-            color=[1, 1, 1],
+            color=[0.62, 1, 0.65] if name == "Grass" else [1, 1, 1],
             asset=str(i),
             textureSize={"width": size, "height": size},
         )
@@ -302,7 +303,7 @@ def build(out):
     for name, color, opacity in [
         ("Ivory", [0.92, 0.91, 0.85], 1),
         ("White", [0.95, 0.95, 0.91], 1),
-        ("Roof gray", [0.43, 0.46, 0.45], 1),
+        ("Roof gray", [0.65, 0.67, 0.65], 1),
         ("Linen", [0.85, 0.79, 0.64], 1),
         ("Ochre", [0.68, 0.43, 0.15], 1),
         ("Concrete", [0.64, 0.63, 0.55], 1),
@@ -312,8 +313,8 @@ def build(out):
         ("Glass", [0.57, 0.78, 0.79], 0.18),
         ("Water", [0.12, 0.57, 0.62], 0.86),
         ("Sand", [0.65, 0.57, 0.41], 1),
-        ("Sage", [0.32, 0.44, 0.29], 1),
-        ("Leaf", [0.20, 0.33, 0.24], 1),
+        ("Sage", [0.48, 0.61, 0.36], 1),
+        ("Leaf", [0.32, 0.48, 0.28], 1),
         ("Firebox", [0.07, 0.08, 0.07], 1),
         ("Clay", [0.61, 0.29, 0.17], 1),
     ]:
@@ -919,7 +920,7 @@ def build(out):
         ("Hero", [5, 1, 1.0], -117, 29, 44, 40, False),
         ("Terrace", [6, 2.5, 1.8], -102, 6, 23, 55, False),
         ("Living", [2.8, 6.1, 1.7], -72, 2, 5.5, 70, False),
-        ("Section", [5.1, 5.1, 1.3], -108, 27, 15.8, 47, False),
+        ("Section", [5.1, 5.1, 1.4], -98, 34, 16.5, 47, False),
         ("Plan", [5, 3, 0.5], -90, 90, 28, 40, True),
         ("Site", [5, 1, 0], -55, 42, 47, 40, False),
         ("Furniture", [6.8, 2.8, 1.1], -100, 34, 8.5, 45, False),
@@ -928,6 +929,7 @@ def build(out):
     for i, (name, target, yaw, pitch, dist, fov, ortho) in enumerate(cameras, 1):
         vis = [{"id": h, "visible": False} for h in b.hide]
         vis += [{"id": h, "visible": name != "Furniture"} for h in b.front_posts]
+        vis += [{"id": h, "visible": name != "Section"} for h in b.section_hide]
         vis += [
             {
                 "id": h,
@@ -976,7 +978,9 @@ def build(out):
                 "showHidden": False,
             },
             "style": dict(style, mode="monochrome" if name == "Plan" else "textured"),
-            "solar": dict(solar, enabled=name not in ("Living", "Furniture", "Plan")),
+            "solar": dict(
+                solar, enabled=name not in ("Living", "Furniture", "Plan", "Section")
+            ),
         }
         b.add("saved_scene.create", name=name, snapshot=snapshot)
     b.add("saved_scene.recall", scene="1")
