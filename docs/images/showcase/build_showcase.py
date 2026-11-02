@@ -388,6 +388,8 @@ def build(out):
         instance = b.instance(post, p)
         if p[1] == 0.1:
             b.front_posts.append(instance)
+        if p[0] < 0:
+            b.section_hide.append(instance)
     beam = b.component(
         "Exposed roof beam", [b.box("Beam", 0, 0, 0, 0.14, 9.2, 0.24, "Walnut")], "Roof"
     )
@@ -920,7 +922,7 @@ def build(out):
         ("Hero", [5, 1, 1.0], -117, 29, 44, 40, False),
         ("Terrace", [6, 2.5, 1.8], -102, 6, 23, 55, False),
         ("Living", [2.8, 6.1, 1.7], -72, 2, 5.5, 70, False),
-        ("Section", [5.1, 5.1, 1.4], -98, 34, 16.5, 47, False),
+        ("Section", [5.5, 4.7, 1.55], -100, 32, 13.2, 47, False),
         ("Plan", [5, 3, 0.5], -90, 90, 28, 40, True),
         ("Site", [5, 1, 0], -55, 42, 47, 40, False),
         ("Furniture", [6.8, 2.8, 1.1], -100, 34, 8.5, 45, False),
