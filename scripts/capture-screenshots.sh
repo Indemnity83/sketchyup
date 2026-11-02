@@ -154,6 +154,7 @@ shot() {
   local parts p x y
   IFS=';' read -ra parts <<< "$steps"
   for p in "${parts[@]}"; do
+    echo "capture $name: $p"
     case $p in
       palette:*|search:*)
         # A bare Xvfb has no window manager to focus this separate QDialog.
@@ -161,7 +162,13 @@ shot() {
         focus_window "$wid"
         xdotool key --clearmodifiers ctrl+k
         local palette_wid
-        palette_wid=$(timeout 30 xdotool search --sync --onlyvisible --all --pid "$apid" --name '^Commands and model search$' | head -1)
+        if ! palette_wid=$(timeout 30 xdotool search --sync --onlyvisible --all --pid "$apid" --name '^Commands and model search$' | head -1); then
+          if [[ -n ${SHOWCASE_BUILD_OUT:-} ]]; then
+            import -window root "$SHOWCASE_BUILD_OUT/failure-$name.png"
+          fi
+          echo "capture-screenshots: palette did not open for $name: $p" >&2
+          exit 1
+        fi
         focus_window "$palette_wid"
         xdotool mousemove 600 220 click 1
         xdotool type --clearmodifiers --delay 80 "${p#*:}"
@@ -202,7 +209,7 @@ shot() {
 shots=(
   "hero-light|1|click:124,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
   "hero-dark|2|click:124,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
-  "components|1|click:500,826;click:43,123;click:700,500;click:43,170;palette:Entity info;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
+  "components|1|click:500,826;click:43,170;palette:Outliner;click:1280,216;type:Dining table;click:1280,267;palette:Entity info;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
   "sheets|1|key:ctrl+alt+s;sleep:3;click:304,834;sleep:2;key:shift+z;move:640,884;sleep:3"
   "terrain|1|click:432,826;click:43,170;palette:Sun and shadows;move:640,884;sleep:3"
   "commands|1|click:124,826;click:43,170;key:ctrl+s;search:export;move:640,884;sleep:3"

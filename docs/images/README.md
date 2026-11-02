@@ -137,6 +137,10 @@ when reproducing this model:
 - Under bare Xvfb, the separate command-palette dialog may not acquire X input
   focus. Capture waits for the named main window and retries focus while Qt maps
   it; it also explicitly focuses the palette before typing.
+- With this 10,122-body document under the two-CPU software-GL capture, clicking
+  the table in the viewport did not process subsequent input within the 30-second
+  palette wait. Capture selects `Dining table` through the Outliner filter instead.
+  The parameter panel and selected placement remain native app UI.
 - Animated scene recall sometimes left the camera between views during capture.
   The isolated profile uses the existing `reducedMotion=true` setting and zero
   transition duration. The saved camera itself is unchanged.
