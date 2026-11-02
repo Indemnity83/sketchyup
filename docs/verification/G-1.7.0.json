@@ -1,0 +1,533 @@
+{
+  "layer": "1.7.0 release record (G-1.7.0)",
+  "date": "2026-11-01",
+  "procedure": "docs/M10_ACCEPTANCE.md, The 1.7.0 release; the 1.7.0 table answered row by row; the form of G-1.6.1",
+  "version": "1.7.0",
+  "recordComplete": "at RC1; the full tier (run 41386693018) passed on attempt 1; the parent added the verdict and ctest totals after the run completed",
+  "gateStatus": "rc-recorded; not yet tagged or published",
+  "ownerApproval": {
+    "date": "2026-11-01",
+    "decisions": [
+      "raise the vertex limit (R110), and \"release it as SketchyUp 1.7.0 under the same permission and release-candidate process as 1.6.x\"",
+      "add the R111 purge commands in 1.7.0",
+      "raise undo history to 192 MiB",
+      "raise the modeled worst-case ceiling to 3.75 GiB",
+      "cap each component definition at 200,000"
+    ],
+    "covers": [
+      "one live corpus run of the supported profile at the RC (R086.l), accepting the run for 1.7.0",
+      "accepting the corpus gate (releaseAccepted stays false in the scorer output by design)",
+      "the tag v1.7.0 and the GitHub release once every check passes"
+    ],
+    "source": "the parent's brief and the freeze record (R086.l); the owner's own message is not in the repository"
+  },
+  "tagCreated": false,
+  "releaseCreated": false,
+  "published": false,
+  "features": [
+    {
+      "id": "R110",
+      "title": "raise the unique geometry limits",
+      "pr": 565,
+      "mergeCommit": "5b03699c",
+      "finalHead": "95a8aed0",
+      "fromTo": {
+        "uniqueVerticesFacesWires": "100,000 -> 300,000",
+        "uniqueEdges": "300,000 -> 900,000",
+        "componentDefinitionVerticesFacesWires": "none -> 200,000",
+        "componentDefinitionEdges": "none -> 600,000",
+        "documentChunkMiB": "32 -> 96",
+        "fileMiB": "128 -> 256",
+        "undoHistoryMiB": "64 -> 192",
+        "outcomeStoreBytes": "268,812,472 -> 403,030,200"
+      }
+    },
+    {
+      "id": "R111",
+      "title": "remove unused definitions, materials and assets by script",
+      "pr": 564,
+      "mergeCommit": "2bb0fea8",
+      "finalHead": "808cac94",
+      "commands": [
+        "component.delete_definition",
+        "document.purge_unused"
+      ]
+    }
+  ],
+  "rc": {
+    "name": "RC1",
+    "commit": "0496b4f17d43a7777d7a9c468e787af47f5192f6",
+    "branch": "release/1.7.0",
+    "mainAfter": "PR #566 (1.7.0: release preparation), merged 2026-11-02T04:07:21Z",
+    "fullTierRun": 41386693018,
+    "fullTierCreatedAt": "2026-11-02T04:07:31Z",
+    "versionScriptPrints": "1.7.0",
+    "pkgver": "1.7.0",
+    "pkgrel": 1,
+    "highestSchema": 35,
+    "sourceArchive": {
+      "file": "sketchyup-1.7.0.tar.gz",
+      "sha256": "5660b1f2d5496cc6b7960d699443df96960743afb6c24c05d2b8ae5e5edc0a74",
+      "byteIdenticalAcrossRuns": true
+    },
+    "packages": [
+      {
+        "file": "sketchyup-1.7.0-1-x86_64.pkg.tar.zst",
+        "name": "sketchyup",
+        "version": "1.7.0-1",
+        "sha256": "8b51842e3ab746b9b766f0e489d7de5e1a9f9497eea98d316a54759b4cc3170d"
+      },
+      {
+        "file": "sketchyup-ifc-1.7.0-1-x86_64.pkg.tar.zst",
+        "name": "sketchyup-ifc",
+        "version": "1.7.0-1",
+        "optional": true,
+        "sha256": "938bb054c5ba90f3a38927802e545d0c81fcf076d09b284e0bf8a0d48f77804b"
+      }
+    ],
+    "thirdPartyNotices": {
+      "file": "THIRD_PARTY_NOTICES",
+      "sha256": "452158057894d1b56bb87a4d026e2f3c28a13a029a434ecb4d704ac35cb1baa8"
+    },
+    "manifest": {
+      "file": "MANIFEST.json",
+      "gitCommit": "0496b4f1",
+      "buildImage": "mirror.gcr.io/library/archlinux:base-devel@sha256:51dd3d24f7fba779e7c471caeee7804c50e8c134ad948e19685a1c83a42facc3"
+    },
+    "priorRelease": {
+      "file": "sketchyup-1.6.1-1-x86_64.pkg.tar.zst",
+      "sha256": "414e7851862af157353ccf1066acce94f4008952b86c06eaa1b7e0773fe05dc9",
+      "source": "the published v1.6.1 asset; SKETCHYUP_PRIOR_RELEASE_PACKAGE; the pin in verify-package.sh (line 87) and native.yml (line 2140)"
+    },
+    "priorSplitPackage": {
+      "file": "sketchyup-ifc-1.6.1-1-x86_64.pkg.tar.zst",
+      "sha256": "c665a849aef6a94a11ac784599d9b922c32a1f49919808483070a474ad3c8594",
+      "pinned": false
+    },
+    "qt68ReferencePackageSha256": "f0bef0989649a31fb744858c9f6943e1592996e1d8fe772f8d453f3e86e7ea3e",
+    "qt68ReferenceNote": "a reference build of sketchyup 1.7.0-1 only, not a release asset; SKETCHYUP_PACKAGE_WITHOUT_IFC=1; buildSeconds 1938",
+    "releaseArtifactsRuns": 2,
+    "archiveStableAcrossRuns": true
+  },
+  "images": {
+    "pinned": "sha256:51dd3d24f7fba779e7c471caeee7804c50e8c134ad948e19685a1c83a42facc3",
+    "packageBuildTag": "sketchyup-build:20261002 (5 GiB, 2 CPUs; its image ID is not in the facts sheet)",
+    "fresh": "sha256:624bdc7fc661... (archlinux:base-devel; the 1.6.0 RC's fresh cache)",
+    "qt68Reference": "archlinux:base-devel-20241013.0.269705 (sha256:291198370afb...; snapshot 2024/10/15)"
+  },
+  "mergedPrsSince161": [
+    {
+      "pr": 562,
+      "title": "the 1.6.1 release record at RC1 (G-1.6.1)",
+      "mergeCommit": "0d6858e0",
+      "finalHead": "504f2e1c",
+      "mergedAt": "2026-11-01T04:22:00Z",
+      "ciVerdict": "SUCCESS"
+    },
+    {
+      "pr": 563,
+      "title": "record the SketchyUp 1.6.1 publication",
+      "mergeCommit": "6b01b730",
+      "finalHead": "f766b129",
+      "mergedAt": "2026-11-01T04:30:00Z",
+      "ciVerdict": "SUCCESS"
+    },
+    {
+      "pr": 564,
+      "title": "R111: remove unused definitions, materials and assets by script",
+      "mergeCommit": "2bb0fea8",
+      "finalHead": "808cac94",
+      "mergedAt": "2026-11-01T18:40:19Z",
+      "ciVerdict": "SUCCESS"
+    },
+    {
+      "pr": 565,
+      "title": "R110: raise the unique geometry limits for 1.7.0",
+      "mergeCommit": "5b03699c",
+      "finalHead": "95a8aed0",
+      "mergedAt": "2026-11-02T01:58:31Z",
+      "ciVerdict": "SUCCESS",
+      "note": "includes the merge of origin/main (PR #564) into the R110 branch, d1250048"
+    },
+    {
+      "pr": 566,
+      "title": "1.7.0: release preparation",
+      "mergeCommit": "0496b4f1",
+      "finalHead": "608690e4",
+      "mergedAt": "2026-11-02T04:07:21Z",
+      "ciVerdict": "SUCCESS"
+    }
+  ],
+  "ciAtRc": {
+    "run": 41386693018,
+    "url": "https://github.com/zygote55/sketchyup/actions/runs/41386693018",
+    "event": "push",
+    "branch": "release/1.7.0",
+    "headSha": "0496b4f17d43a7777d7a9c468e787af47f5192f6",
+    "tier": "full",
+    "attempt": 1,
+    "status": "completed",
+    "verdict": "success",
+    "readAt": "2026-11-02T06:30:44Z (final, read by the parent)",
+    "workloadJobsTotal": 13,
+    "workloadJobsSucceeded": 13,
+    "workloadJobsInProgress": 0,
+    "jobs": {
+      "Plan": "success",
+      "Development build and checks": "success",
+      "IFC library and helper": "success",
+      "Qt 6.8 reference compile": "success",
+      "Arch package acceptance": "success",
+      "SKP parser, helper and import": "success",
+      "Blender interoperability": "success",
+      "Native tests (six jobs)": "success",
+      "Sanitized builds": "success",
+      "Fast tier (three matrix entries)": "skipped",
+      "CI verdict": "success"
+    },
+    "ctestTotals": {
+      "Development build and checks": [
+        "284/284",
+        "2/2",
+        "1/1"
+      ],
+      "Sanitized builds": [
+        "74/74",
+        "146/146",
+        "7/7",
+        "1/1"
+      ],
+      "Arch package acceptance": [
+        "283/283"
+      ],
+      "IFC library and helper": [
+        "10/10",
+        "8/8",
+        "6/6",
+        "1/1"
+      ],
+      "SKP parser, helper and import": [
+        "11/11",
+        "5/5"
+      ]
+    },
+    "localPackageCheckCtest": "100% of 283 (checks/rc170-package-acceptance/output.log)",
+    "completedAt": "2026-11-02T06:30:44Z"
+  },
+  "packageAcceptance": {
+    "image": "sketchyup-build:20261002",
+    "limits": "5 GiB, 2 CPUs, -j2; boost, eigen, opencascade and patchelf installed first",
+    "exit": 0,
+    "firstTry": true,
+    "gatesCleared": "2026-11-01T20:13:09-07:00",
+    "finished": "2026-11-01T21:13:01-07:00",
+    "priorRelease": "sketchyup-1.6.1-1 (published asset, 414e7851...)",
+    "priorCliReadsSchemasUpTo": 35,
+    "newerFixturesRefusedUnchanged": 0,
+    "installedMigrations": 38,
+    "ctest": {
+      "passed": 283,
+      "total": 283
+    },
+    "uniqueLimitsAcceptanceSeconds": 65.31,
+    "purgeUnusedSeconds": 0.12
+  },
+  "limitsSmoke": {
+    "capabilities": {
+      "vertices": 300000,
+      "componentDefinitionVertices": 200000,
+      "componentDefinitionEdges": 600000,
+      "packagedModelBytes": 100663296,
+      "documentBytes": 268435456
+    },
+    "model153k": {
+      "bodies": 17,
+      "documentVersion": 26,
+      "documentChunkBytes": 9654097,
+      "fileBytes": 9655465,
+      "validatesAndReopens": true,
+      "resaveByteIdentical": true
+    },
+    "purge": {
+      "unusedDefinitionUniqueVerticesFreed": 4,
+      "dryRunLeavesFileUnchanged": true,
+      "realPurgeRemovesDefinition": true
+    },
+    "sanitizedAdr0005R110a": {
+      "image": "sketchyup-ci-pinned:r097a-ifc (ASan and UBSan, 4 GiB, 2 CPUs)",
+      "documentLimitsSeconds": 536,
+      "documentLimitsIoSeconds": 187,
+      "incrementalValidationSeconds": 85,
+      "purgeUnusedSeconds": 3,
+      "uniqueLimitsAcceptanceSeconds": 1667,
+      "uniqueLimitsAcceptancePeakRssMiB": 3977,
+      "marginUnderCapMiB": 119,
+      "source": "ADR 0005, R110.a implementation notes (a merged record; the log is not in the RC evidence read)"
+    }
+  },
+  "cleanMachines": {
+    "method": "R087.u lifecycle for the 1.7.0 RC, with the downgrade and limits steps added (smoke-170-limits, downgrade-limits, rollback-purged); one fresh container per machine; --network none; 2 CPUs; 4 GiB; first attempt",
+    "pinned": {
+      "image": "sha256:51dd3d24f7fb... (the pinned digest)",
+      "environment": "the 1.4.0 RC's cache, read only",
+      "packages": "qt6-base 6.11.2-3, qt6-wayland 6.11.2-1, mesa 1:26.2.3-2, glibc 2.44+r50+g1848099f063e-1, pacman 7.1.0.r9.g54d9411-2",
+      "stepResults": 29,
+      "networkIsolated": true,
+      "lifecycle": "pass",
+      "networkedRehearsal": {
+        "stepResults": 29,
+        "lifecycle": "pass",
+        "networkIsolated": "rehearsal-not-checked"
+      }
+    },
+    "fresh": {
+      "image": "sha256:624bdc7fc661...",
+      "environment": "the 1.6.0 RC's fresh cache, read only",
+      "packages": "qt6-base 6.12.0-3, qt6-wayland 6.12.0-1, mesa 1:26.2.6-1, glibc 2.44+r50+g1848099f063e-1, pacman 7.1.0.r9.g54d9411-3",
+      "stepResults": 29,
+      "networkIsolated": true,
+      "lifecycle": "pass",
+      "networkedRehearsal": "not run (as at 1.6.1)"
+    },
+    "qt68Reference": {
+      "image": "archlinux:base-devel-20241013.0.269705 (sha256:291198370afb...)",
+      "environment": "the 2024/10/15 snapshot (the 1.4.0 RC's cache, read only)",
+      "packages": "qt6-base 6.8.0-1, qt6-wayland 6.8.0-1, mesa 1:24.2.4-1, glibc 2.40+r16+gaa533d58ff-2, pacman 7.0.0.r3.g7736133-1",
+      "stepResults": 27,
+      "networkIsolated": true,
+      "lifecycle": "pass",
+      "sketchyupIfc": "not installed (IFC steps not run on Qt 6.8)",
+      "networkedRehearsal": {
+        "stepResults": 27,
+        "lifecycle": "pass",
+        "networkIsolated": "rehearsal-not-checked"
+      }
+    },
+    "migrations": 38,
+    "upgradeFromPublished": {
+      "versions": [
+        "1.6.1-1",
+        "1.7.0-1"
+      ],
+      "passed": true
+    },
+    "d036": {
+      "pages": 2,
+      "syntaxErrors": 0,
+      "qpdfCheck": "exit 0",
+      "textSha256Prefix": "c4812bec",
+      "machines": [
+        "pinned",
+        "fresh",
+        "qt68Reference"
+      ]
+    }
+  },
+  "downgradeWindow": {
+    "priorCli": "published sketchyup-cli 1.6.1-1 (readDocumentVersions 1 to 35, documentVersion 35)",
+    "machines": [
+      "packageAcceptance",
+      "pinned",
+      "fresh",
+      "qt68Reference"
+    ],
+    "opensUnchangedPerOfficialMachine": 17,
+    "committedFixturesOpened": [
+      "presentation-v30",
+      "edge-styles-v31",
+      "geographic-site-v32",
+      "material-texture-size-v33",
+      "terrain-dem-v34",
+      "reference-geo-v35"
+    ],
+    "purgedFileOpensUnchanged": true,
+    "refusedNewerFixtures": 0,
+    "sheetFreeSaveAccepted": true,
+    "refusal": {
+      "model": "153,000 unique vertices (17 bodies)",
+      "exitStatus": 1,
+      "fileUnchanged": true,
+      "text": "{\"code\":\"INVALID_OPERATION\",\"error\":\"Document load exceeds document unique geometry limits: vertices would be 153,000 of 100,000\",\"status\":\"failed\"}",
+      "seenIn": [
+        "packageAcceptance",
+        "pinned",
+        "fresh",
+        "qt68Reference"
+      ]
+    },
+    "chunkOver32MiBCheck": "not done: at the 1.6.1 unique limits, geometry does not reach 32 MiB; the check would need non-geometry bulk; none was built (ADR 0162, 1.7.0 notes); verify-package.sh has no such check"
+  },
+  "rollback": {
+    "machines": [
+      "pinned",
+      "fresh"
+    ],
+    "withIfcInstalled": "pacman -U sketchyup-1.6.1-1 exits 1: 'warning: downgrading package sketchyup (1.7.0-1 => 1.6.1-1)'; 'error: failed to prepare transaction (could not satisfy dependencies)'; ':: installing sketchyup (1.6.1-1) breaks dependency sketchyup=1.7.0 required by sketchyup-ifc'; nothing changed",
+    "afterRemovingIfc": "the same pacman -U installs sketchyup-1.6.1-1; its CLI validates the orthophoto document saved by 1.7.0 (valid true, documentVersion 35, exit 0) and the purged file (valid true, documentVersion 26, exit 0)",
+    "referenceMachine": "no sketchyup-ifc; the rollback steps ran without the IFC step, with the same two validations, exit 0"
+  },
+  "corpus": {
+    "record": "docs/verification/R086l-rc170-remote-evaluation.md",
+    "completionRecord": "docs/verification/R086l-rc170-remote-completion.json",
+    "scoreRecord": "docs/verification/R086l-rc170-remote-corpus-score.json",
+    "manifestVersion": 6,
+    "manifestSha256": "6170ee5e7e3d9cf084e2d0bb92fc261048320f1658aa9123a83a3dcc7c69c711",
+    "manifestChangedFrom161": "eight inputSha256 values re-pinned for the SketchyUp/1.7.0 writer; no other line changed (checked for v2 to v6 and the unversioned file)",
+    "run": "one fresh live run at RC1, 2026-11-02T04:08:22Z to 04:24:28Z (2026-11-01 21:08:22 to 21:24:28 -07:00), no retries",
+    "frozenAt": "2026-11-02T04:08:16Z (2026-11-01 21:08:16 -07:00)",
+    "runsCompleted": 24,
+    "runsPassed": 24,
+    "corpusPassed": true,
+    "blockers": [],
+    "releaseAccepted": false,
+    "undoRecovery": "24/24",
+    "remoteHttp200": 106,
+    "loopbackAttempts": 9,
+    "providerAttempts": 115,
+    "toolCalls": 148,
+    "toolCallErrors": 3,
+    "toolCallErrorCode": "CONTEXT_MISMATCH (read-only entity.describe, first call of each Resize run)",
+    "reportedTokens": 1600369,
+    "reportedTokensAt161": 1666073,
+    "trialSeconds": 963.416,
+    "trialSecondsAt161": 646.511,
+    "model": "gpt-6-astra",
+    "scorerReRun": {
+      "exitCode": 0,
+      "outputByteIdentical": true
+    }
+  },
+  "commits": {
+    "boundMeasuredAt170": false,
+    "outcomeBudgetBytes": 403030200,
+    "largestContainerBytes": 193126492,
+    "largestMeasured": "a 64 MiB payload container (1.6.1 record): begin 152 ms, commit 548 ms, peak RSS 526.3 MiB"
+  },
+  "memory": {
+    "status": "software only (R082w v3); D-091 open",
+    "modeledWorstCase": {
+      "withExcess": {
+        "bytes": 3839057776,
+        "gib": 3.58
+      },
+      "withHardwareDelta": {
+        "bytes": 3989057776,
+        "gib": 3.72
+      }
+    },
+    "ceilingGib": 3.75,
+    "marginMiB": {
+      "withoutHardwareDelta": 178.8,
+      "withHardwareDelta": 35.7
+    },
+    "fourGiBOperationalCap": "unchanged",
+    "notMeasured": [
+      "frame time of the file-loaded document (c)",
+      "frame time and history of the whole-document edit (d)",
+      "viewport frame time for the densest shape (b2)",
+      "hardware at the raised limits (D-091)"
+    ]
+  },
+  "triage": {
+    "atRc": "0496b4f1",
+    "open": 27,
+    "releaseBlocking": 0,
+    "major": 0,
+    "minor": 8,
+    "limitation": 19,
+    "newAtRc": [],
+    "addedWithPreparation": [
+      "D-090 (Limitation)",
+      "D-091 (Limitation)",
+      "D-092 (Limitation)",
+      "D-093 (Limitation)"
+    ],
+    "openAtRc": [
+      "D-087 (Minor): a retained render can carry a terrain's notice outside its view",
+      "D-090 (Limitation): staging budget for whole-document proposals; needs an owner decision",
+      "D-091 (Limitation): hardware evidence at the raised limits",
+      "D-092 (Limitation): .skp definitions over the component limit lose geometry past the limit",
+      "D-093 (Limitation): inline document parse memory unmeasured"
+    ]
+  },
+  "m10Answers": [
+    {
+      "area": "RC",
+      "answer": "yes: release/1.7.0 at 0496b4f1 (RC1); release-version.sh prints 1.7.0; pkgver 1.7.0; pkgrel 1; the source archive 5660b1f2..., the packages 8b51842e... and 938bb054..., the pinned image digest 51dd3d24..."
+    },
+    {
+      "area": "CI",
+      "answer": "yes: the full tier (run 41386693018) passed on attempt 1; all 13 workload jobs succeeded; CI verdict success; every ctest run 100%"
+    },
+    {
+      "area": "Downgrade window",
+      "answer": "yes, with one not done: the published 1.6.1-1 CLI refused 0 newer fixtures, opened unchanged the schema-35 reference-image save, accepted the sheet-free save, and refused the 153,000-vertex model unchanged (exit 1, the 1.6.1 message), in package acceptance and in all three official lifecycles; 17 files plus the sheet-free save open unchanged on each official machine; the >32 MiB chunk check is not done (no check is built; geometry does not reach 32 MiB at the 1.6.1 limits)"
+    },
+    {
+      "area": "Split-package rollback",
+      "answer": "yes: with sketchyup and sketchyup-ifc 1.7.0-1 installed, pacman -U sketchyup-1.6.1-1 exits 1 with the sketchyup=1.7.0 dependency error and changes nothing; after pacman -R sketchyup-ifc the same command installs 1.6.1-1 (pinned and fresh; reference without IFC)"
+    },
+    {
+      "area": "Corpus",
+      "answer": "yes, under the owner's 2026-11-01 permission: R086.l, one fresh live run at RC1, 24/24 passed, corpusPassed true, no blockers, undo and recovery 24/24, 106 remote responses HTTP 200 with gpt-6-astra; the 1.6.1 run does not carry over; the corpus content is unchanged (eight inputSha256 values re-pinned); the scorer re-run reproduces the record byte for byte"
+    },
+    {
+      "area": "Limits",
+      "answer": "yes, with the sanitized figures from ADR 0005 R110.a (a merged record; the RC's own sanitized job is still running): unique_limits_acceptance 1,667 s and peak RSS 3,977 MiB under the 4 GiB cap in the pinned CI image; locally unique_limits_acceptance 65.31 s and purge_unused 0.12 s; modeled worst case 3.58 GiB (3.72 GiB with the hardware delta) against the 3.75 GiB ceiling; software evidence only (D-091)"
+    },
+    {
+      "area": "Clean machines",
+      "answer": "yes: the RC package installs over 1.6.1-1 (versions 1.6.1-1 then 1.7.0-1) and the lifecycle passes on the pinned, fresh and Qt 6.8 reference machines, each --network none, first attempt, migrations 38; 29, 29 and 27 step results, all pass; the fresh image had no networked rehearsal, as at 1.6.1"
+    },
+    {
+      "area": "Accepted misses",
+      "answer": "no new budget miss for the 1.7.0 items; D-090 (staging) and D-091 (hardware evidence) are open limits, not misses; the STEP speed budgets, the render limits, the IFC import of about 10,000 bodies (about 12 s against 10 s) and the view test's cost carry over from 1.6.1; D-092 and D-093 are open limits"
+    },
+    {
+      "area": "Triage",
+      "answer": "yes: 27 open (0 release-blocking, 0 Major, 8 Minor, 19 Limitation); D-090 to D-093 are the new Limitation rows; D-087 stays open; no new defect recorded at the RC"
+    },
+    {
+      "area": "Documentation",
+      "answer": "yes, with follow-ups: the release notes (1.7.0 section), support matrix, user guide, SCOPE (unchanged) and ADR 0162 notes match, except the IFC budget line missing from the 1.7.0 Budgets section, the support matrix commit row, and the roadmap entry still reading In preparation (updated at publication); the CHANGELOG heading is dated at the tag"
+    }
+  ],
+  "contradictions": [
+    "Tool surfaces: M10 and the release notes say six pinned assistant tool surfaces; the manifest's assistant.surfaces has eight trial entries with five distinct toolsSha256 values. The record uses the manifest values; every report matches its trial's entry.",
+    "IFC budget: M10 names the IFC import (about 12 s against 10 s) as carried from 1.6.1; the 1.7.0 release notes' Budgets section omits it (the 1.6.1 section lists it). The record carries it; the release notes need the line.",
+    "Commit row: the support matrix's large-model commit row still names the 120.2 MiB bound as unmeasured and does not address the 1.7.0 bound (about 184 MiB); no commit at the 1.7.0 bound is recorded in the RC documents.",
+    "Roadmap: PR_ROADMAP's 1.7.0 release entry still reads 'In preparation; the release candidate and the tag are pending'; M10 requires the documentation to match the record; it is updated at publication.",
+    "Sanitized figures: the unique_limits_acceptance sanitized results (1,667 s; 3,977 MiB) are in ADR 0005 R110.a and the release notes; no sanitized log was in the RC evidence read, and the RC's sanitized job is still running.",
+    "Advanced first-turn input is 12,870 tokens at 1.7.0 against 12,986 at 1.6.1, with identical tool-list bytes and instruction hash; the input document changed for the 1.7.0 writer; the difference is not traced to a field.",
+    "Tool-call errors: the 1.6.1 record's contradiction about receipts does not arise in this run: the three failing receipts carry error.code CONTEXT_MISMATCH; the count of three agrees with 1.6.1.",
+    "Owner words: quoted from the parent's brief; the freeze record words the permission as 'under the same permission and RC process as 1.6.1'; the owner's message is not in the repository."
+  ],
+  "closedForOwner": [
+    "UX section 21 amendment (PR #552): accepted by the owner on 2026-11-01"
+  ],
+  "openForOwner": [
+    "R107.d (geocoding) stays held; SCOPE C06 stays at Investigate",
+    "buildingSMART hosted validation of the IFC export: the owner's own task, not a gate",
+    "D-087, retained renders: Minor, open",
+    "D-091: the AMD campaign at the 1.7.0 limits is not run; the owner decides whether the software evidence stands, or the run is made (ADR 0161 does not waive it)",
+    "D-090: an owner decision on a larger staging budget for whole-document proposals (the triage row's words)",
+    "carried from G-1.6.0: the 1 s per-frame budget and the view test's cost; the frame credit for stills (no checkbox); the Qt range 6.8.0 to 6.12.0, where the orthophoto dialog and the guide viewer were not run on Qt 6.8"
+  ],
+  "followUpsForPublicationPr": [
+    "CHANGELOG: set the '1.7.0 — unreleased' heading to the release date at the tag",
+    "PR_ROADMAP: the '1.7.0 release' entry reads as released",
+    "R089.a: a line records the 1.7.0 release",
+    "RELEASE_NOTES 1.7.0 Budgets: add the IFC import line (about 12 s against 10 s, accepted at 1.4.0)",
+    "SUPPORT_MATRIX: the commit row's bound, if updated",
+    "BUILD_PLAN, PR_ROADMAP, RELEASE_NOTES, SUPPORT_MATRIX and R089.a link this record once it is published"
+  ],
+  "publishedRelease": {
+    "status": "to be filled at publication",
+    "tag": null,
+    "tagObject": null,
+    "pointsAt": "0496b4f17d43a7777d7a9c468e787af47f5192f6 (RC1), once tagged",
+    "release": null,
+    "assets": null,
+    "fullTierOnTag": null
+  }
+}

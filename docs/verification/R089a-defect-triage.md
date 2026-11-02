@@ -1444,6 +1444,7 @@ After the D-089 and D-086 fixes (2026-10-31, [PR #560](https://github.com/zygote
 At the 1.6.1 RC1 `8947872c` (2026-10-31): 23 open (0 release-blocking, 0 Major, 8 Minor, 15 Limitation). No new defect was found at the RC. D-089 and D-086 stay fixed, D-087 stays open, and the count is unchanged from the line above ([G-1.6.1](G-1.6.1.md)).
 After the 1.6.1 release (2026-11-01, [G-1.6.1](G-1.6.1.md)): 23 open, unchanged (0 release-blocking, 0 Major, 8 Minor, 15 Limitation). D-089 and D-086 are in that release.
 At 1.7.0 preparation (2026-11-01): 27 open (0 release-blocking, 0 Major, 8 Minor, 19 Limitation). D-090 to D-093 are new Limitation rows for the limits that R110 raises: the staging budget for whole-document proposals, the hardware evidence at the raised limits, `.skp` definitions over the component limit, and the inline document's parse memory. None of the four was an open row before. The ADR 0161 waiver does not cover a run of the AMD campaign at the raised limits, so D-091 stays open.
+At the 1.7.0 RC1 `0496b4f1` (2026-11-01): 27 open (0 release-blocking, 0 Major, 8 Minor, 19 Limitation). No new defect is recorded at the RC, and D-087 and D-090 to D-093 stay open ([G-1.7.0](G-1.7.0.md)).
 
 Before the RC update (2026-10-13): 21 open (0 release-blocking, 0 Major, 8 Minor, 13
 Limitation). The RC update added D-027 and D-028 (Minor) and D-029 (Limitation).
