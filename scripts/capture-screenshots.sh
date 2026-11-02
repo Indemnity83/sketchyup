@@ -6,8 +6,10 @@
 # and writes the PNGs (1440x900, stripped, max compression) to OUTPUT_DIR.
 #
 # Run it inside the screenshot image, which provides Xvfb, xdotool, ImageMagick
-# and the SketchyUp 1.7.0 package, with this repository mounted read-only:
+# and the SketchyUp 1.7.0 package. Build the image from scripts/screenshots.Dockerfile
+# first, then run the script with this repository mounted read-only:
 #
+#   docker build -f scripts/screenshots.Dockerfile -t sketchyup-shots:1.7.0 packaging/arch
 #   docker run --rm --network none --memory 3g --cpus 2 --user "$(id -u):$(id -g)" \
 #     -v "$PWD":/src:ro -v "$PWD/docs/images":/out sketchyup-shots:1.7.0 \
 #     /src/scripts/capture-screenshots.sh /out
@@ -120,8 +122,17 @@ fi
 # tabs move with the selection: the Info tab is at y=197 once an entity is selected.
 shot() {
   local name=$1 theme=$2 steps=$3
-  printf '[General]\ntheme=%s\ndefaultUnits=m\n' "$theme" > "$XDG_CONFIG_HOME/SketchyUp/SketchyUp.conf"
-  sketchyup "$model" > "$work/app-$name.log" 2>&1 &
+  # A fresh profile and model copy for each shot, so that no recovery data or edit
+  # from an earlier shot reaches this one.
+  local dir="$work/shot-$name"
+  mkdir -p "$dir/home/.config/SketchyUp" "$dir/home/.local/share" "$dir/home/.cache" \
+    "$dir/run" "$dir/model"
+  chmod 700 "$dir/run"
+  cp "$model" "$dir/model/showcase.sketchyup"
+  printf '[General]\ntheme=%s\ndefaultUnits=m\n' "$theme" > "$dir/home/.config/SketchyUp/SketchyUp.conf"
+  env HOME="$dir/home" XDG_CONFIG_HOME="$dir/home/.config" XDG_DATA_HOME="$dir/home/.local/share" \
+    XDG_CACHE_HOME="$dir/home/.cache" XDG_RUNTIME_DIR="$dir/run" \
+    sketchyup "$dir/model/showcase.sketchyup" > "$work/app-$name.log" 2>&1 &
   local apid=$!
   local wid
   wid=$(timeout 30 xdotool search --sync --onlyvisible --pid "$apid" 2>/dev/null | head -1) || true
@@ -154,25 +165,37 @@ shot() {
   echo "shot $name"
 }
 
+# Hint workaround. The Select tool draws its hint line at a fixed height, and that line
+# overlaps the saved-scene tabs (a product bug). Orbit and Pan draw a camera hint of their
+# own, so the model shots use Paint (B), which draws no viewport hint. Each shot clicks
+# empty sky above the terrain (which selects nothing) or the table, then presses b and
+# moves the pointer onto the status bar. Paint opens the Materials tab, so a shot clicks
+# the tab it needs.
+#
+# The dining table (a configurable assembly, 5 parameters) is placed beside the recipe
+# table: choose it in the Components list, then type its position into the Measurements
+# box. It is placed only in the components shot.
+place="key:ctrl+k;sleep:1;type:Components;sleep:1;key:Return;sleep:2;click:1263,388;sleep:1"
+place="$place;click:1355,874;sleep:1;type:[1.6,-0.95,0.6];sleep:1;key:Return;sleep:2;click:124,826;sleep:2"
 shots=(
-  "hero-light|1|click:124,826;sleep:2"
-  "hero-dark|2|click:124,826;sleep:2"
-  "components|1|click:124,826;sleep:2;click:840,505;sleep:2;click:1354,197;sleep:2"
+  "hero-light|1|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Outliner;sleep:1;key:Return;sleep:2;click:700,125;sleep:1;move:640,884;sleep:2"
+  "hero-dark|2|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Outliner;sleep:1;key:Return;sleep:2;click:700,125;sleep:1;move:640,884;sleep:2"
+  "components|1|click:124,826;sleep:2;$place;click:718,555;sleep:2;click:1234,197;sleep:2;click:1262,229;sleep:2;click:718,555;sleep:1;key:b;sleep:1;click:1234,197;sleep:2;move:640,884;sleep:2"
   "sheets|1|key:ctrl+alt+s;sleep:2;click:1120,300;sleep:1;key:shift+z;sleep:2"
-  "terrain|1|click:240,826;sleep:2;key:ctrl+k;sleep:1;type:site terr;sleep:1;key:Return;sleep:2;click:1354,197;sleep:2"
-  "commands|1|click:124,826;sleep:2;key:ctrl+k;sleep:1;type:sec;sleep:1"
+  "terrain|1|click:240,826;sleep:2;click:640,190;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Sun and shadows;sleep:1;key:Return;sleep:2;move:640,884;sleep:2"
+  "commands|1|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:export;sleep:1;move:640,884;sleep:2"
 )
 for entry in "${shots[@]}"; do
   IFS='|' read -r name theme steps <<< "$entry"
   shot "$name" "$theme" "$steps"
 done
 
-# Strip metadata and compress. The textured views need 256 colours to stay under
+# Strip metadata and compress. The textured views need 192 colours to stay under
 # 500 KB; no dithering, which would add grain to the flat areas of the UI.
 status=0
 for entry in "${shots[@]}"; do
   name=${entry%%|*}
-  "$IM" "$work/shots/$name.png" -strip -colors 256 -dither None \
+  "$IM" "$work/shots/$name.png" -strip -colors 192 -dither None \
     -define png:compression-level=9 "PNG8:$out/$name.png"
   bytes=$(stat -c %s "$out/$name.png")
   echo "$name.png $((bytes / 1024)) KB"
