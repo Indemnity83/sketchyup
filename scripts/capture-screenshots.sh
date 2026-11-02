@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Regenerate the README screenshots in docs/images/ from the showcase model.
 #
-# The script builds docs/images/showcase.json and docs/images/showcase-sheet.json
-# with sketchyup-cli, runs SketchyUp under its own Xvfb with an isolated HOME,
+# The script runs docs/images/showcase/build_showcase.py with sketchyup-cli,
+# then runs SketchyUp under its own Xvfb with an isolated profile,
 # and writes the PNGs (1440x900, stripped, max compression) to OUTPUT_DIR.
 #
 # Run it inside the screenshot image, which provides Xvfb, xdotool, ImageMagick
@@ -10,7 +10,7 @@
 # first, then run the script with this repository mounted read-only:
 #
 #   docker build -f scripts/screenshots.Dockerfile -t sketchyup-shots:1.7.0 packaging/arch
-#   docker run --rm --network none --memory 3g --cpus 2 --user "$(id -u):$(id -g)" \
+#   docker run --rm --network none --memory 4g --memory-swap 4g --cpus 2 --user "$(id -u):$(id -g)" \
 #     -v "$PWD":/src:ro -v "$PWD/docs/images":/out sketchyup-shots:1.7.0 \
 #     /src/scripts/capture-screenshots.sh /out
 #
@@ -18,6 +18,8 @@
 # CI does not run this script.
 set -euo pipefail
 ulimit -c 0
+
+[[ -e /.dockerenv ]] || { echo "Run this capture inside Docker." >&2; exit 1; }
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 OUTPUT_DIR" >&2
@@ -56,10 +58,9 @@ cleanup() {
 trap cleanup EXIT
 
 # Isolated profile: nothing is read from or written to the real home directory.
-export HOME="$work/home"
-export XDG_CONFIG_HOME="$HOME/.config"
-export XDG_DATA_HOME="$HOME/.local/share"
-export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$work/home/.config"
+export XDG_DATA_HOME="$work/home/.local/share"
+export XDG_CACHE_HOME="$work/home/.cache"
 export XDG_RUNTIME_DIR="$work/run"
 export QT_QPA_PLATFORM=xcb QT_SCALE_FACTOR=1 LIBGL_ALWAYS_SOFTWARE=1
 unset WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS
@@ -116,7 +117,7 @@ shot() {
     "$dir/run" "$dir/model"
   chmod 700 "$dir/run"
   cp "$model" "$dir/model/showcase.sketchyup"
-  printf '[General]\ntheme=%s\ndefaultUnits=m\n' "$theme" > "$dir/home/.config/SketchyUp/SketchyUp.conf"
+  printf '[General]\ntheme=%s\ndefaultUnits=m\nreducedMotion=true\nsceneTransitionMs=0\n' "$theme" > "$dir/home/.config/SketchyUp/SketchyUp.conf"
   env HOME="$dir/home" XDG_CONFIG_HOME="$dir/home/.config" XDG_DATA_HOME="$dir/home/.local/share" \
     XDG_CACHE_HOME="$dir/home/.cache" XDG_RUNTIME_DIR="$dir/run" \
     sketchyup "$dir/model/showcase.sketchyup" > "$work/app-$name.log" 2>&1 &
@@ -149,31 +150,26 @@ shot() {
   import -window root "$work/shots/$name.png"
   kill "$apid" 2>/dev/null || true
   wait "$apid" 2>/dev/null || true
+  "$IM" "$work/shots/$name.png" -strip -colors 192 -dither None -define png:compression-level=9 "PNG8:$out/$name.png"
   echo "shot $name"
 }
 
-# Hint workaround. The Select tool draws its hint line at a fixed height, and that line
-# overlaps the saved-scene tabs (a product bug). Orbit and Pan draw a camera hint of their
-# own, so the model shots use Paint (B), which draws no viewport hint. Each shot clicks
-# empty sky above the terrain (which selects nothing) or the table, then presses b and
-# moves the pointer onto the status bar. Paint opens the Materials tab, so a shot clicks
-# the tab it needs.
-#
-# The dining table (a configurable assembly, 5 parameters) is placed beside the recipe
-# table: choose it in the Components list, then type its position into the Measurements
-# box. It is placed only in the components shot.
+# The Paint tool avoids the released Select hint overlap (D-094). Clicking
+# the tool rail also works when a scene tab retains keyboard focus. Reduced
+# camera motion makes captures independent of the scene animation timing.
+# The table comes from the generator; collapse Entity info to reveal parameters.
 shots=(
-  "hero-light|1|click:124,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
-  "hero-dark|2|click:124,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
-  "components|1|click:520,826;key:space;click:650,470;key:b;key:ctrl+k;type:Entity info;key:Return;move:640,884;sleep:4"
-  "sheets|1|key:ctrl+alt+s;sleep:3;key:shift+z;move:640,884;sleep:4"
-  "terrain|1|click:456,826;key:b;key:ctrl+k;type:Sun and shadows;key:Return;move:640,884;sleep:4"
-  "commands|1|click:124,826;key:b;key:ctrl+k;type:export;move:640,884;sleep:4"
-  "section|1|click:330,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
-  "interior|1|click:265,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
+  "hero-light|1|click:124,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
+  "hero-dark|2|click:124,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
+  "components|1|click:500,826;click:43,123;click:700,500;click:43,170;key:ctrl+k;type:Entity info;key:Return;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
+  "sheets|1|key:ctrl+alt+s;sleep:3;click:304,834;sleep:2;key:shift+z;move:640,884;sleep:3"
+  "terrain|1|click:432,826;click:43,170;key:ctrl+k;type:Sun and shadows;key:Return;move:640,884;sleep:3"
+  "commands|1|click:124,826;click:43,170;key:ctrl+k;type:export;move:640,884;sleep:3"
+  "section|1|click:320,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
+  "interior|1|click:250,826;click:43,170;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:3"
 )
-
 for entry in "${shots[@]}"; do
+  [[ -z ${SHOWCASE_SHOTS:-} || ,$SHOWCASE_SHOTS, == *,${entry%%|*},* ]] || continue
   IFS='|' read -r name theme steps <<< "$entry"
   shot "$name" "$theme" "$steps"
 done
@@ -183,6 +179,7 @@ done
 status=0
 for entry in "${shots[@]}"; do
   name=${entry%%|*}
+  [[ -z ${SHOWCASE_SHOTS:-} || ,$SHOWCASE_SHOTS, == *,$name,* ]] || continue
   "$IM" "$work/shots/$name.png" -strip -colors 192 -dither None \
     -define png:compression-level=9 "PNG8:$out/$name.png"
   bytes=$(stat -c %s "$out/$name.png")

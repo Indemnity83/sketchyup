@@ -3,7 +3,7 @@
 set -euo pipefail
 ulimit -c 0
 root=$(cd "$(dirname "$0")/.." && pwd)
-render=${1:-$root/.local/showcase-render/render.png}
+render=${1:-$root/.local/showcase-render/image.png}
 out=${2:-$root/docs/images/social-preview.jpg}
 work=$(mktemp -d "$root/.local/social.XXXXXX")
 trap 'rm -rf "$work"' EXIT

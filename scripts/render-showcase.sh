@@ -13,8 +13,8 @@ timeout 300 python3 docs/images/showcase/build_showcase.py "$out/model"
 timeout 30 python3 - "$out" <<'PYTHON'
 import json, math, pathlib, sys
 out=pathlib.Path(sys.argv[1])
-settings={"apiVersion":1,"width":1440,"height":900,"samples":96,"seed":17,
- "camera":{"projection":"perspective","position":[-12,-29,16],"target":[5,1,1.2],
+settings={"apiVersion":1,"width":1344,"height":1024,"samples":160,"seed":17,
+ "camera":{"projection":"perspective","position":[-15,-33,18],"target":[5,1,1.2],
  "up":[0,0,1],"verticalFov":math.radians(40),"nearClip":.01,"farClip":1000}}
 (out/"settings.json").write_text(json.dumps(settings,indent=2)+"\n")
 PYTHON
@@ -28,8 +28,8 @@ request={"apiVersion":1,"operation":"render","backend":"CPU","deviceId":"CPU",
 (out/"request.json").write_text(json.dumps(request,indent=2)+"\n")
 PYTHON
 start=$SECONDS
-timeout 1200 systemd-run --user --scope -q -p MemoryMax=8G -p MemorySwapMax=0 \
-  /usr/bin/blender --background --factory-startup --disable-autoexec --threads 4 \
+systemd-run --user --scope -q -p MemoryMax=8G -p MemorySwapMax=0 \
+  timeout --foreground 1200 /usr/bin/blender --background --factory-startup --disable-autoexec --threads 4 \
   --python-exit-code 1 --python "$root/src/integrations/blender_worker.py" -- "$out/request.json" \
   > "$out/blender.log" 2>&1
 printf 'Blender elapsed: %s seconds\n' "$((SECONDS-start))" | tee "$out/elapsed.txt"
