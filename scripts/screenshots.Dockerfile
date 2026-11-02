@@ -14,7 +14,7 @@ ARG SKETCHYUP_VERSION=1.7.0
 
 # The dated archive keeps the package set fixed; see packaging/arch/mirrorlist.
 COPY mirrorlist /etc/pacman.d/mirrorlist
-RUN pacman -Syy --noconfirm --needed xorg-server-xvfb xdotool imagemagick ttf-dejavu mesa curl \
+RUN pacman -Syy --noconfirm --needed xorg-server-xvfb xdotool imagemagick ttf-dejavu mesa curl python \
  && pacman -Scc --noconfirm
 
 RUN set -eu; \

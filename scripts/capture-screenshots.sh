@@ -17,13 +17,14 @@
 # Usage: scripts/capture-screenshots.sh OUTPUT_DIR
 # CI does not run this script.
 set -euo pipefail
+ulimit -c 0
 
 if [[ $# -ne 1 ]]; then
   echo "usage: $0 OUTPUT_DIR" >&2
   exit 2
 fi
 
-for tool in Xvfb xdotool import sketchyup sketchyup-cli; do
+for tool in Xvfb xdotool import sketchyup sketchyup-cli python3; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "capture-screenshots: required tool not on PATH: $tool" >&2
     exit 1
@@ -40,12 +41,6 @@ fi
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 images="$root/docs/images"
-for input in "$images/showcase.json" "$images/showcase-sheet.json"; do
-  if [[ ! -f $input ]]; then
-    echo "capture-screenshots: missing input: $input" >&2
-    exit 1
-  fi
-done
 
 mkdir -p "$1"
 out=$(cd "$1" && pwd)
@@ -71,21 +66,13 @@ unset WAYLAND_DISPLAY DBUS_SESSION_BUS_ADDRESS
 mkdir -p "$XDG_CONFIG_HOME/SketchyUp" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_RUNTIME_DIR" "$work/shots"
 chmod 700 "$XDG_RUNTIME_DIR"
 
-# Build the model and the sheet page. Drawing sheet operations need their own batch.
-mkdir -p "$work/build" "$work/model"
-if ! sketchyup-cli --script "$images/showcase.json" --output "$work/build/showcase.sketchyup" \
-    > "$work/build-model.json" 2> "$work/build-model.err"; then
-  echo "capture-screenshots: model build failed:" >&2
-  cat "$work/build-model.json" "$work/build-model.err" >&2
-  exit 1
+# Emit bounded command batches and build them with the released CLI.
+timeout 300 python3 "$images/showcase/build_showcase.py" "$work/build"
+model="$work/build/showcase.sketchyup"
+if [[ -n ${SHOWCASE_BUILD_OUT:-} ]]; then
+  mkdir -p "$SHOWCASE_BUILD_OUT"
+  cp "$model" "$work/build/stats.json" "$work/build/document.json" "$SHOWCASE_BUILD_OUT/"
 fi
-if ! sketchyup-cli --input "$work/build/showcase.sketchyup" --script "$images/showcase-sheet.json" \
-    --output "$work/model/showcase.sketchyup" > "$work/build-sheet.json" 2> "$work/build-sheet.err"; then
-  echo "capture-screenshots: sheet build failed:" >&2
-  cat "$work/build-sheet.json" "$work/build-sheet.err" >&2
-  exit 1
-fi
-model="$work/model/showcase.sketchyup"
 
 # Start a private X server on a display number that is not in use. The real
 # desktop display is never opened.
@@ -175,16 +162,17 @@ shot() {
 # The dining table (a configurable assembly, 5 parameters) is placed beside the recipe
 # table: choose it in the Components list, then type its position into the Measurements
 # box. It is placed only in the components shot.
-place="key:ctrl+k;sleep:1;type:Components;sleep:1;key:Return;sleep:2;click:1263,388;sleep:1"
-place="$place;click:1355,874;sleep:1;type:[1.6,-0.95,0.6];sleep:1;key:Return;sleep:2;click:124,826;sleep:2"
 shots=(
-  "hero-light|1|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Outliner;sleep:1;key:Return;sleep:2;click:700,125;sleep:1;move:640,884;sleep:2"
-  "hero-dark|2|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Outliner;sleep:1;key:Return;sleep:2;click:700,125;sleep:1;move:640,884;sleep:2"
-  "components|1|click:124,826;sleep:2;$place;click:718,555;sleep:2;click:1234,197;sleep:2;click:1262,229;sleep:2;click:718,555;sleep:1;key:b;sleep:1;click:1234,197;sleep:2;move:640,884;sleep:2"
-  "sheets|1|key:ctrl+alt+s;sleep:2;click:1120,300;sleep:1;key:shift+z;sleep:2"
-  "terrain|1|click:240,826;sleep:2;click:640,190;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:Sun and shadows;sleep:1;key:Return;sleep:2;move:640,884;sleep:2"
-  "commands|1|click:124,826;sleep:2;click:700,125;sleep:1;key:b;sleep:1;key:ctrl+k;sleep:1;type:export;sleep:1;move:640,884;sleep:2"
+  "hero-light|1|click:124,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
+  "hero-dark|2|click:124,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
+  "components|1|click:520,826;key:space;click:650,470;key:b;key:ctrl+k;type:Entity info;key:Return;move:640,884;sleep:4"
+  "sheets|1|key:ctrl+alt+s;sleep:3;key:shift+z;move:640,884;sleep:4"
+  "terrain|1|click:456,826;key:b;key:ctrl+k;type:Sun and shadows;key:Return;move:640,884;sleep:4"
+  "commands|1|click:124,826;key:b;key:ctrl+k;type:export;move:640,884;sleep:4"
+  "section|1|click:330,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
+  "interior|1|click:265,826;key:b;key:ctrl+k;type:Outliner;key:Return;move:640,884;sleep:4"
 )
+
 for entry in "${shots[@]}"; do
   IFS='|' read -r name theme steps <<< "$entry"
   shot "$name" "$theme" "$steps"
