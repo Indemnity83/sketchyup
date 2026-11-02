@@ -39,7 +39,7 @@
 | | |
 | :---: | :---: |
 | <img alt="A configurable component selected, with its parameters in the side panel" src="docs/images/components.png"><br>**Configurable components** | <img alt="The Sheets workspace with a page of plan and perspective views" src="docs/images/sheets.png"><br>**Documentation sheets** |
-| <img alt="A house on sculpted terrain with the Sun and shadows panel open" src="docs/images/terrain.png"><br>**Terrain, sun and shadow** | <img alt="The command palette open over the model, listing matching commands" src="docs/images/commands.png"><br>**Every command a keystroke away (Ctrl+K)** |
+| <img alt="The house on sloping ground in the Site view, with the Sun and shadows panel open" src="docs/images/terrain.png"><br>**Terrain, sun and shadow** | <img alt="The command palette open over the model, listing matching commands" src="docs/images/commands.png"><br>**Every command a keystroke away (Ctrl+K)** |
 
 ## Install
 

@@ -30,10 +30,12 @@ catalogs, not the bundled assembly library. The components shot places it in the
 at (1.6, −0.95, 0.6) m, by choosing it in the Components list and typing that position
 into the Measurements box.
 
-The model shots use the Paint tool (B). The Select tool's hint line overlaps the scene
-tabs, and Orbit and Pan draw a camera hint of their own, so Paint keeps the viewport
-clean. Remove that workaround from `scripts/capture-screenshots.sh` when the Select hint
-is fixed.
+The model shots use the Paint tool (B). In 1.7.0 the Select tool's hint line overlaps the
+status line when the saved-scene tabs are shown (D-094, fixed on `main` after 1.7.0 in
+[#569](https://github.com/zygote55/sketchyup/pull/569)), and Orbit and Pan draw a camera
+hint of their own, so Paint keeps the viewport clean. Once a release includes the fix,
+build the image for that release and drop the workaround from
+`scripts/capture-screenshots.sh`.
 
 ## Regenerate
 
