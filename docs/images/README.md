@@ -99,32 +99,71 @@ For capture development only, `SHOWCASE_SHOTS=components,sheets` selects a subse
 Release the full image set only after a clean run without this filter and a visual
 inspection of every output.
 
-Render through SketchyUp's GLB snapshot exporter and its unchanged Blender adapter,
-then compose the social preview with ImageMagick:
+### Portable render handoff
+
+Run **only the export step on the modeling machine**. It builds the model and
+captures a complete immutable GLB snapshot, without finding or invoking Blender:
 
 ```sh
-timeout --foreground 1450 scripts/render-showcase.sh .local/showcase-render
-timeout 60 scripts/make-social-preview.sh \
-  .local/showcase-render/image.png docs/images/social-preview.jpg
+timeout 450 scripts/render-showcase.sh export .local/render-input --samples 256
 ```
 
-Use a **new render directory** for each run: the exporter refuses to overwrite a
-snapshot. `/usr/bin/blender` must be Blender 5.2 LTS. The script uses Cycles CPU,
-4 threads, 160 fixed samples, seed 17, 1440×900, Standard view transform, no
-denoising (the unchanged adapter fixes this policy), and the model's solar lighting.
-`showcase/sky_environment.py` generates an original 512×256 Radiance HDR panorama
-at build time: blue zenith, warm horizon and muted ground. The render-settings
-`environment` field packages it at strength 0.65 and rotation 0°. No HDR binary is
-committed. The camera is a low garden view across the pool, not an aerial studio
-view. The adapter keeps its directional sun color; the warm ambient tones come
-from the panorama and materials. Blender is bounded by a user systemd
-scope with `MemoryMax=8G`, `MemorySwapMax=0`, and a 20-minute timeout. It writes
-`image.png`, `result.json`, `elapsed.txt`, `snapshot/manifest.json` and logs.
-The script also writes the actual render to `docs/images/render.png`, using only
-metadata stripping and palette quantization to meet the image budget. The raw
-full-color result remains in the render directory.
-The social script adapts the supplied brand-panel layout, including its drawn
-cube icon; it does not retouch or fabricate the rendered geometry.
+Use `--cli /absolute/path/to/sketchyup-cli` (or `SKETCHYUP_CLI`) for a local build.
+The output contains `showcase.sketchyup`, build statistics, portable `settings.json`,
+the generated sky, `snapshot/` with all captured assets, the **unchanged** Blender
+adapter, and `bundle.json` with SHA-256 checksums. Copy the entire directory to the
+rendering machine. No source-machine path is needed there. Use a fresh output
+directory for every export, probe and render.
+
+On the separate Linux GPU machine, check out this branch and place the bundle at
+`.local/render-input/`. Blender **5.2.2**, Python 3 and a user systemd session are
+required. HIP also needs a Blender build and driver that expose the AMD GPU.
+These commands invoke Blender and belong **only on the rendering machine**:
+
+```sh
+# Inspect the RX 6800 XT's actual HIP device ID.
+timeout 180 scripts/render-showcase.sh probe .local/hip-probe \
+  --backend HIP --blender /usr/bin/blender --timeout 120
+
+# A sole HIP device is selected automatically; multiple devices require
+# --device-id with an exact ID printed by the probe. No CPU fallback occurs.
+timeout 1500 scripts/render-showcase.sh render .local/render-input .local/render-hip \
+  --backend HIP --blender /usr/bin/blender --samples 256 \
+  --publish docs/images/render.png
+
+# Compose the social image only after the parent has reviewed the GPU render.
+timeout 60 scripts/make-social-preview.sh \
+  .local/render-hip/image.png docs/images/social-preview.jpg
+```
+
+`--backend CPU` selects CPU rendering; `--blender` (or `BLENDER`) accepts an
+alternate executable path. `--samples 1..1024` on export sets the captured sample
+count. On render, omit it to retain that count. If it differs, the script uses
+`--cli`/`SKETCHYUP_CLI` to export a **new** snapshot from the bundled native model,
+camera and sky, preserving the original snapshot. It never patches the manifest.
+
+Both backends run the unchanged adapter with at most four CPU threads under
+`MemoryMax=8G`, `MemorySwapMax=0`, and a default 1,200-second timeout (`--timeout`
+can override it). The render directory retains `request.json`, `result.json`,
+`image.png`, `elapsed.json`, the probe and logs. `--publish` is optional and only
+strips metadata and quantizes the actual render to a 1440×900 PNG below 500 KB;
+rendering does not otherwise overwrite repository images or the social preview.
+
+Settings: Cycles, seed 17, 1440×900, Standard transform, no denoising (the adapter's
+fixed policy), and the model's solar lighting. The original 512×256 Radiance sky
+comes from `showcase/sky_environment.py`: blue zenith, warm horizon, muted ground,
+strength 0.65, rotation 0°. No HDR binary is committed. The low garden camera is
+at `[-10,-20,6]`, looking at `[5,1,1.9]`, with a 43° vertical field of view.
+The directional sun keeps the adapter's color; warmth comes from the environment
+and materials. The native sun study is 15 April 2026, 16:30 UTC−07, with a 28.54°
+solar elevation and long shadows.
+
+The current render and social preview were made on CPU **before** the owner moved
+rendering to the separate GPU machine (160 samples, 379 seconds, four threads).
+The social preview was left untouched after that instruction. The parent replaces
+it from the GPU output; `make-social-preview.sh` accepts any input render path and
+uses the truthful backend-neutral caption “Rendered with Blender / Cycles”.
+The actual HIP run must be verified on that machine; it was not run here.
 
 ## Released-product limitations
 

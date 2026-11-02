@@ -22,6 +22,6 @@ timeout 30 "$IM" -size 440x640 xc:'#1c2520' \
   -font DejaVu-Sans -pointsize 23 -fill '#c9d3c4' -annotate +48+390 'A native 3D modeler for Linux' \
   -pointsize 23 -annotate +48+424 'Local-first. No account.' \
   -pointsize 15 -fill '#8fa08a' -annotate +48+566 'Modeled in SketchyUp' \
-  -annotate +48+590 'Rendered with Blender / Cycles CPU' "$work/panel.png"
+  -annotate +48+590 'Rendered with Blender / Cycles' "$work/panel.png"
 timeout 30 "$IM" "$work/panel.png" "$work/render.png" +append -strip -quality 90 "$out"
 timeout 10 identify "$out"
