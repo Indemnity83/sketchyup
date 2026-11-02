@@ -110,7 +110,7 @@ timeout 60 scripts/make-social-preview.sh \
 
 Use a **new render directory** for each run: the exporter refuses to overwrite a
 snapshot. `/usr/bin/blender` must be Blender 5.2 LTS. The script uses Cycles CPU,
-4 threads, 256 fixed samples, seed 17, 1440×900, Standard view transform, no
+4 threads, 160 fixed samples, seed 17, 1440×900, Standard view transform, no
 denoising (the unchanged adapter fixes this policy), and the model's solar lighting.
 `showcase/sky_environment.py` generates an original 512×256 Radiance HDR panorama
 at build time: blue zenith, warm horizon and muted ground. The render-settings
@@ -135,7 +135,8 @@ when reproducing this model:
   tool before model shots. A scene-tab click retains keyboard focus, so a bare
   `B` keystroke is not reliable there.
 - Under bare Xvfb, the separate command-palette dialog may not acquire X input
-  focus. Capture waits for its window and explicitly focuses it before typing.
+  focus. Capture waits for the named main window and retries focus while Qt maps
+  it; it also explicitly focuses the palette before typing.
 - Animated scene recall sometimes left the camera between views during capture.
   The isolated profile uses the existing `reducedMotion=true` setting and zero
   transition duration. The saved camera itself is unchanged.

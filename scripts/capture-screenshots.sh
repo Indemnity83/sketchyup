@@ -108,6 +108,19 @@ if [[ -z $ready ]]; then
   exit 1
 fi
 
+# Xvfb may report a Qt window before it accepts input during a large-model load.
+focus_window() {
+  local target=$1
+  for _ in $(seq 1 15); do
+    if timeout 3 xdotool windowfocus --sync "$target" 2>/dev/null; then
+      return 0
+    fi
+    sleep 1
+  done
+  echo "capture-screenshots: window $target did not become focusable" >&2
+  return 1
+}
+
 # One fresh SketchyUp process per shot, sized to 1440x900 and driven with xdotool.
 # Steps: key:KEYS, type:TEXT, click:X,Y, move:X,Y, sleep:SECONDS,
 # palette:ACTION (invoke) or search:TEXT (leave open); separated by semicolons.
@@ -128,7 +141,7 @@ shot() {
     sketchyup "$dir/model/showcase.sketchyup" > "$work/app-$name.log" 2>&1 &
   local apid=$!
   local wid
-  wid=$(timeout 90 xdotool search --sync --onlyvisible --pid "$apid" 2>/dev/null | head -1) || true
+  wid=$(timeout 90 xdotool search --sync --onlyvisible --all --pid "$apid" --name '^SketchyUp' 2>/dev/null | head -1) || true
   if [[ -z $wid ]]; then
     kill "$apid" 2>/dev/null || true
     echo "capture-screenshots: no window for $name" >&2
@@ -136,8 +149,8 @@ shot() {
     exit 1
   fi
   xdotool windowmove "$wid" 0 0 windowsize "$wid" 1440 900
-  sleep 3
-  xdotool windowfocus --sync "$wid" || true
+  sleep 5
+  focus_window "$wid"
   local parts p x y
   IFS=';' read -ra parts <<< "$steps"
   for p in "${parts[@]}"; do
@@ -145,17 +158,17 @@ shot() {
       palette:*|search:*)
         # A bare Xvfb has no window manager to focus this separate QDialog.
         # Wait for it and focus its X window before sending any text.
-        xdotool windowfocus --sync "$wid"
+        focus_window "$wid"
         xdotool key --clearmodifiers ctrl+k
         local palette_wid
         palette_wid=$(timeout 30 xdotool search --sync --onlyvisible --all --pid "$apid" --name '^Commands and model search$' | head -1)
-        xdotool windowfocus --sync "$palette_wid"
+        focus_window "$palette_wid"
         xdotool mousemove 600 220 click 1
         xdotool type --clearmodifiers --delay 80 "${p#*:}"
         if [[ $p == palette:* ]]; then
           xdotool key --clearmodifiers Return
           sleep 1
-          xdotool windowfocus --sync "$wid"
+          focus_window "$wid"
         fi
         ;;
       key:*) xdotool key --clearmodifiers "${p#key:}" ;;
@@ -171,7 +184,7 @@ shot() {
   # Scene recall changes document state; save the disposable copy before capture.
   # The command palette is saved before opening it instead.
   if [[ $name != commands ]]; then
-    xdotool windowfocus --sync "$wid"
+    focus_window "$wid"
     xdotool key --clearmodifiers ctrl+s
   fi
   sleep 3

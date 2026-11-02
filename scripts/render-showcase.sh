@@ -14,7 +14,7 @@ timeout 30 python3 docs/images/showcase/sky_environment.py "$out/sky.hdr"
 timeout 30 python3 - "$out" <<'PYTHON'
 import json, math, pathlib, sys
 out=pathlib.Path(sys.argv[1])
-settings={"apiVersion":1,"width":1440,"height":900,"samples":256,"seed":17,
+settings={"apiVersion":1,"width":1440,"height":900,"samples":160,"seed":17,
  "environment":{"path":str(out/"sky.hdr"),"strength":.65,"rotationDegrees":0},
  "camera":{"projection":"perspective","position":[-10,-20,6],"target":[5,1,1.9],
  "up":[0,0,1],"verticalFov":math.radians(43),"nearClip":.01,"farClip":1000}}
