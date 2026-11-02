@@ -947,11 +947,11 @@ def build(out):
             },
             {
                 "id": b.tags["Roof"],
-                "visible": name not in ("Plan", "Furniture", "Section"),
+                "visible": name not in ("Plan", "Furniture", "Section", "Elevation"),
             },
             {
                 "id": b.tags["Landscape"],
-                "visible": name not in ("Plan", "Furniture", "Section"),
+                "visible": name not in ("Plan", "Furniture", "Section", "Elevation"),
             },
         ]
         snapshot = {
@@ -1084,6 +1084,28 @@ def build(out):
         "Keep headroom below the 10000-body measured drawing limit"
     )
     assert 25000 <= stats["vertices"] <= 60000, "Showcase detail budget changed"
+    # CLI cannot render the three perspective sheet viewports, but it can validate
+    # every measured view. Refuse broken sheets before an expensive GUI capture.
+    preflight = json.loads(
+        subprocess.check_output(
+            [
+                "sketchyup-cli",
+                "--input",
+                str(final),
+                "--export-sheets",
+                str(out / "preflight.pdf"),
+                "--preflight-only",
+            ],
+            timeout=60,
+        )
+    )
+    (out / "sheet-preflight.json").write_text(json.dumps(preflight, indent=2) + "\n")
+    unexpected = [
+        f
+        for f in preflight["preflight"]["findings"]
+        if f["severity"] == "blocking" and f["code"] != "rasterUnavailable"
+    ]
+    assert not unexpected, unexpected
     (out / "stats.json").write_text(json.dumps(stats, indent=2) + "\n")
     print(stats)
 

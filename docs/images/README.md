@@ -181,6 +181,11 @@ when reproducing this model:
 - Technical sheets refuse more than 10,000 body records, even with landscape
   hidden: **"Measured drawing exceeds 10000 body records"**. The final model has
   9,310 bodies. The generator now checks a 9,500-body ceiling with headroom.
+- Technical views also refuse **"Measured drawing exceeds 20000 visible edges"**.
+  The architectural elevation hides the landscape, while perspective sheets keep
+  it. Generator preflight rejects broken measured views before capture. The three
+  perspective sheet views require the desktop viewport for PDF export; headless
+  preflight reports `rasterUnavailable` for those views, as documented by the CLI.
 - With the preliminary 10,122-body document under the two-CPU software-GL capture, clicking
   the table in the viewport did not process subsequent input within the 30-second
   palette wait. Capture selects `Dining table` through the Outliner filter instead.

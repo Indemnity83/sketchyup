@@ -76,7 +76,12 @@ def export(args):
             300,
             env,
         )
-        for name in ["showcase.sketchyup", "stats.json", "document.json"]:
+        for name in [
+            "showcase.sketchyup",
+            "stats.json",
+            "document.json",
+            "sheet-preflight.json",
+        ]:
             shutil.copyfile(build / name, out / name)
     run(
         [
