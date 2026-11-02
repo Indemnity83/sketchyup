@@ -4,7 +4,7 @@
   "procedure": "docs/M10_ACCEPTANCE.md, The 1.7.0 release; the 1.7.0 table answered row by row; the form of G-1.6.1",
   "version": "1.7.0",
   "recordComplete": "at RC1; the full tier (run 41386693018) passed on attempt 1; the parent added the verdict and ctest totals after the run completed",
-  "gateStatus": "rc-recorded; not yet tagged or published",
+  "gateStatus": "published",
   "ownerApproval": {
     "date": "2026-11-01",
     "decisions": [
@@ -21,9 +21,9 @@
     ],
     "source": "the parent's brief and the freeze record (R086.l); the owner's own message is not in the repository"
   },
-  "tagCreated": false,
-  "releaseCreated": false,
-  "published": false,
+  "tagCreated": true,
+  "releaseCreated": true,
+  "published": true,
   "features": [
     {
       "id": "R110",
@@ -514,20 +514,43 @@
     "carried from G-1.6.0: the 1 s per-frame budget and the view test's cost; the frame credit for stills (no checkbox); the Qt range 6.8.0 to 6.12.0, where the orthophoto dialog and the guide viewer were not run on Qt 6.8"
   ],
   "followUpsForPublicationPr": [
-    "CHANGELOG: set the '1.7.0 — unreleased' heading to the release date at the tag",
-    "PR_ROADMAP: the '1.7.0 release' entry reads as released",
-    "R089.a: a line records the 1.7.0 release",
-    "RELEASE_NOTES 1.7.0 Budgets: add the IFC import line (about 12 s against 10 s, accepted at 1.4.0)",
-    "SUPPORT_MATRIX: the commit row's bound, if updated",
-    "BUILD_PLAN, PR_ROADMAP, RELEASE_NOTES, SUPPORT_MATRIX and R089.a link this record once it is published"
+    "done: the CHANGELOG heading reads '1.7.0 — 2026-11-02'",
+    "done: the PR_ROADMAP entry '1.7.0 release' reads as released; R110 and R111 read 'Delivered (in 1.7.0)'",
+    "done: R089.a has a line for the 1.7.0 release, with no count change",
+    "done: the RELEASE_NOTES 1.7.0 Budgets list names the IFC import (about 12 s against its 10 s budget)",
+    "done: the SUPPORT_MATRIX commit row says what is not measured at the 1.7.0 bound",
+    "done: M10 and the 1.7.0 release notes give the count the corpus v6 manifest pins (eight trial entries, five distinct toolsSha256 values), not six",
+    "done for BUILD_PLAN, PR_ROADMAP, RELEASE_NOTES, SUPPORT_MATRIX and R089.a, which link this record; M10 names it in code form, as at 1.6.1; SCOPE unchanged (it names no current release and has no limit statement)"
   ],
   "publishedRelease": {
-    "status": "to be filled at publication",
-    "tag": null,
-    "tagObject": null,
-    "pointsAt": "0496b4f17d43a7777d7a9c468e787af47f5192f6 (RC1), once tagged",
-    "release": null,
-    "assets": null,
-    "fullTierOnTag": null
+    "tag": "v1.7.0",
+    "tagType": "annotated",
+    "tagMessage": "SketchyUp 1.7.0",
+    "tagObject": "f7d2a694253f3491c45eddab607e52cbb549add2",
+    "taggerDate": "2026-11-02T06:36:00Z",
+    "pointsAt": "0496b4f17d43a7777d7a9c468e787af47f5192f6",
+    "url": "https://github.com/zygote55/sketchyup/releases/tag/v1.7.0",
+    "title": "SketchyUp 1.7.0",
+    "publishedAt": "2026-11-02T06:36:08Z",
+    "latest": true,
+    "prerelease": false,
+    "draft": false,
+    "assets": {
+      "sketchyup-1.7.0.tar.gz": "5660b1f2d5496cc6b7960d699443df96960743afb6c24c05d2b8ae5e5edc0a74",
+      "sketchyup-1.7.0-1-x86_64.pkg.tar.zst": "8b51842e3ab746b9b766f0e489d7de5e1a9f9497eea98d316a54759b4cc3170d",
+      "sketchyup-ifc-1.7.0-1-x86_64.pkg.tar.zst": "938bb054c5ba90f3a38927802e545d0c81fcf076d09b284e0bf8a0d48f77804b",
+      "PKGBUILD": "f4228dbea30663f291e51fb8a6f671ec7e324fe4b2b81d76d01ebc0441e24bb5",
+      "SHA256SUMS": "b86da49007b3b586cfa642418a4b16577dcb8dced17235aaf753b1d0d7264adf",
+      "MANIFEST.json": "51c74ecc63f0904403cea180db059547e7b506320b49435aece5484f7b74afd7",
+      "THIRD_PARTY_NOTICES": "452158057894d1b56bb87a4d026e2f3c28a13a029a434ecb4d704ac35cb1baa8"
+    },
+    "assetsVerified": "the parent downloaded every asset; sha256sum -c SHA256SUMS passes for the four files it lists (the archive, both packages and THIRD_PARTY_NOTICES); each downloaded file is byte-identical to the RC artifact; MANIFEST.json's digests match the files and its gitCommit is the RC commit. The digests of all seven assets are GitHub's asset digest field, read from the release when this record was written; for the four in the artifact manifest they equal its values; PKGBUILD, SHA256SUMS and MANIFEST.json have no value in the record to compare with",
+    "recordPr": "PR #567 (merge commit 567b7f7b) merged before the tag was made",
+    "fullTierRun": {
+      "run": 41400935320,
+      "headBranch": "v1.7.0",
+      "status": "in_progress when written",
+      "conclusion": null
+    }
   }
 }

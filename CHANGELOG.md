@@ -1,6 +1,8 @@
 # Changelog
 
-## 1.7.0 — unreleased
+## 1.7.0 — 2026-11-02
+
+Tag `v1.7.0`; [GitHub release](https://github.com/zygote55/sketchyup/releases/tag/v1.7.0).
 
 Raised unique geometry limits and two scripting commands. No schema change. A file over the 1.6.1 limits does not open in 1.6.1, so the downgrade window is 1.6.1-1. The release notes are in [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md#170).
 
