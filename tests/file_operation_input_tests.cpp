@@ -3,6 +3,7 @@
 #include "app/viewport.hpp"
 #include "app/window.hpp"
 #include "core/assets.hpp"
+#include "io/preferences.hpp"
 #include <QAction>
 #include <QApplication>
 #include <QCryptographicHash>
@@ -188,7 +189,7 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", files.path().toUtf8());
     QApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
     QApplication app(argc, argv);
-    QSettings("SketchyUp", "SketchyUp").setValue("recoverySeconds", 0);
+    Preferences().setValue("recoverySeconds", 0);
     UnexpectedModalGuard modalGuard;
     std::optional<ReadOnlyDirectory> readOnlySaveDirectory;
     try {

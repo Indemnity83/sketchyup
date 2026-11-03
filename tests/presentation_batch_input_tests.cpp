@@ -14,6 +14,7 @@
 #include "blender_stand_in.hpp"
 #include "core/presentation_records.hpp"
 #include "integrations/presentation_store.hpp"
+#include "io/preferences.hpp"
 #include "io/scenes_io.hpp"
 #include <QAction>
 #include <QApplication>
@@ -109,9 +110,7 @@ QString standIn(const QTemporaryDir &files, const QString &name, const QString &
     return blender_stand_in::place(files.filePath(name), mode);
 }
 
-void setBlender(const QString &path) {
-    QSettings("SketchyUp", "SketchyUp").setValue("render/blenderPath", path);
-}
+void setBlender(const QString &path) { Preferences().setValue("render/blenderPath", path); }
 
 QLabel *label(QWidget &root, const char *name) {
     auto *found = root.findChild<QLabel *>(name);
@@ -259,7 +258,7 @@ int main(int argc, char **argv) {
     qputenv("XDG_CONFIG_HOME", files.path().toUtf8());
     qputenv("XDG_DATA_HOME", files.path().toUtf8());
     QApplication app(argc, argv);
-    QSettings preferences("SketchyUp", "SketchyUp");
+    Preferences preferences;
     preferences.setValue("recoverySeconds", 0);
     setBlender(files.path() + "/absent");
     try {
@@ -825,7 +824,7 @@ int main(int argc, char **argv) {
         // form.
         {
             isolateStore(files, "store-7");
-            QSettings("SketchyUp", "SketchyUp").setValue("interfaceTextPercent", 200);
+            Preferences().setValue("interfaceTextPercent", 200);
             Window large;
             large.resize(1280, 900);
             large.show();
@@ -844,7 +843,7 @@ int main(int argc, char **argv) {
             check(!dialog->findChild<QPushButton *>("batchStart")->geometry().isEmpty(),
                   "The footer stays inside the dialog at 200%");
             dialog->deleteLater();
-            QSettings("SketchyUp", "SketchyUp").remove("interfaceTextPercent");
+            Preferences().remove("interfaceTextPercent");
         }
 
         // UX_DESIGN 17.10: Esc closes the batch dialog, and no batch starts.

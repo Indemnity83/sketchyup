@@ -4,6 +4,7 @@
 #include "automation/component_parameter_commands.hpp"
 #include "io/component_library.hpp"
 #include "io/library_catalog.hpp"
+#include "io/preferences.hpp"
 #include <QApplication>
 #include <QComboBox>
 #include <QCoreApplication>
@@ -371,7 +372,7 @@ void ComponentsTab::scan() {
     std::stable_sort(entries_.begin(), entries_.end(),
                      [&](const Card &a, const Card &b) { return rank(a) < rank(b); });
     if (filter_->currentIndex() == 1)
-        add(QSettings("SketchyUp", "SketchyUp")
+        add(Preferences()
                 .value("libraryFolder",
                        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) +
                            "/library")

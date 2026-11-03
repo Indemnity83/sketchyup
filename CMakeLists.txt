@@ -2131,3 +2131,16 @@ install(FILES docs/decisions/0142-deterministic-parser-corruption.md DESTINATION
 install(FILES docs/decisions/0143-new-file-publication-faults.md DESTINATION share/doc/sketchyup/decisions)
 install(FILES docs/decisions/0144-seeded-transaction-sequences.md DESTINATION share/doc/sketchyup/decisions)
 install(FILES docs/USER_GUIDE.md docs/SUPPORT_MATRIX.md DESTINATION share/doc/sketchyup)
+# macOS: every test executable gets its own CoreFoundation home (tests/macos_user_home.cpp), the
+# isolation XDG_DATA_HOME and HOME give the Linux tests. After every test target is defined.
+if(APPLE AND BUILD_TESTING)
+  add_library(sketchyup_test_user_home OBJECT tests/macos_user_home.cpp)
+  get_property(sketchyup_targets DIRECTORY PROPERTY BUILDSYSTEM_TARGETS)
+  foreach(sketchyup_target IN LISTS sketchyup_targets)
+    get_target_property(sketchyup_type ${sketchyup_target} TYPE)
+    get_target_property(sketchyup_sources ${sketchyup_target} SOURCES)
+    if(sketchyup_type STREQUAL "EXECUTABLE" AND sketchyup_sources MATCHES "(^|;)tests/")
+      target_sources(${sketchyup_target} PRIVATE $<TARGET_OBJECTS:sketchyup_test_user_home>)
+    endif()
+  endforeach()
+endif()
