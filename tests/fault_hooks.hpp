@@ -10,6 +10,7 @@
 // other image. dyld does not redirect the interposing image's own calls, so a hook reaches the real
 // function by calling it.
 #include <cstddef>
+#include <fcntl.h>
 #ifdef __APPLE__
 #include <cstring>
 #include <dlfcn.h>
@@ -49,8 +50,11 @@ inline int realFsync(int fd) {
 inline int realLink(const char *source, const char *destination) {
 #ifdef __APPLE__
     return ::link(source, destination);
-#else
+#elif defined(SYS_link)
     return static_cast<int>(::syscall(SYS_link, source, destination));
+#else
+    // aarch64 has linkat only.
+    return static_cast<int>(::syscall(SYS_linkat, AT_FDCWD, source, AT_FDCWD, destination, 0));
 #endif
 }
 
