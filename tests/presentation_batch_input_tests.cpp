@@ -236,6 +236,10 @@ StoredPresentationJob jobNamed(PresentationBatches &batches, const QString &id) 
 // Each window gets its own data folder, so one block's batches are not in another block's store.
 void isolateStore(const QTemporaryDir &files, const char *name) {
     qputenv("XDG_DATA_HOME", files.filePath(name).toUtf8());
+#ifdef Q_OS_MACOS
+    // macOS's QStandardPaths follows CFFIXED_USER_HOME, not XDG_DATA_HOME.
+    qputenv("CFFIXED_USER_HOME", files.filePath(name).toUtf8());
+#endif
 }
 
 BlenderJob::Options batchOptions(const QString &executable) {
@@ -257,6 +261,9 @@ int main(int argc, char **argv) {
     qputenv("HOME", files.path().toUtf8());
     qputenv("XDG_CONFIG_HOME", files.path().toUtf8());
     qputenv("XDG_DATA_HOME", files.path().toUtf8());
+#ifdef Q_OS_MACOS
+    qputenv("CFFIXED_USER_HOME", files.path().toUtf8());
+#endif
     QApplication app(argc, argv);
     Preferences preferences;
     preferences.setValue("recoverySeconds", 0);
