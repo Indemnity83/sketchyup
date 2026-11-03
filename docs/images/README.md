@@ -116,7 +116,7 @@ rendering machine. No source-machine path is needed there. Use a fresh output
 directory for every export, probe and render.
 
 On the separate Linux GPU machine, check out this branch and place the bundle at
-`.local/render-input/`. Blender **5.2.2**, Python 3 and a user systemd session are
+`.local/render-input/`. Blender **5.2.2**, Python 3.10+ and a user systemd session are
 required. HIP also needs a Blender build and driver that expose the AMD GPU.
 These commands invoke Blender and belong **only on the rendering machine**:
 
