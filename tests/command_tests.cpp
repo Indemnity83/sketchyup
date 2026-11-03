@@ -1,4 +1,5 @@
 #include "automation/commands.hpp"
+#include "automation/inspection.hpp"
 #include "automation/presentation_commands.hpp"
 #include "automation/terrain_commands.hpp"
 #include "automation/text_commands.hpp"
@@ -159,6 +160,53 @@ void deleteGroupCommand() {
               doc.bodies().contains(sibling),
           "Deleting a nested group keeps its ancestors and removes only its own subtree");
 }
+// D-095: a command that names an entity the document lacks is refused as NOT_FOUND and names it.
+// No refusal carries the raw text of a failed `.at()` lookup ("map::at"), and a refused batch
+// changes nothing.
+void missingReferenceCommands() {
+    Document doc;
+    doc.addFace({{{0, 0, 0}, {1, 0, 0}, {1, 1, 0}, {0, 1, 0}}});
+    auto batch = [&](QJsonArray commands) {
+        return QJsonObject{{"apiVersion", 1},
+                           {"documentId", QString::fromStdString(doc.identity())},
+                           {"expectedRevision", QString::number(doc.revision())},
+                           {"commands", commands}};
+    };
+    executeBatch(doc, batch({QJsonObject{{"command", "material.create"},
+                                         {"name", "Red"},
+                                         {"color", QJsonArray{1, 0, 0}}}}));
+    const auto before = encodeDocument(doc);
+    // The message of the refusal a one-command batch gets; a batch that succeeds fails the test.
+    auto refusal = [&](QJsonObject command) {
+        try {
+            executeBatch(doc, batch({command}));
+        } catch (const InspectionError &error) {
+            const std::string message = error.what();
+            check(error.code() == "NOT_FOUND",
+                  "A command that names a missing entity is refused as NOT_FOUND");
+            check(message.find("map::at") == std::string::npos,
+                  "No refusal carries the raw map::at text");
+            return message;
+        }
+        throw std::runtime_error("A command that names a missing entity must not succeed");
+    };
+    check(
+        refusal(QJsonObject{
+            {"command", "material.assign"}, {"body", "7"}, {"material", "1"}, {"side", "both"}}) ==
+            "Body #7 does not exist",
+        "material.assign names the missing body");
+    check(refusal(QJsonObject{{"command", "tag.assign"}, {"body", "7"}, {"tag", "1"}}) ==
+              "Body #7 does not exist",
+          "tag.assign names the missing body");
+    check(refusal(QJsonObject{{"command", "tag.edit"}, {"tag", "9"}, {"name", "Walls"}}) ==
+              "Tag #9 does not exist",
+          "tag.edit names the missing tag");
+    check(refusal(QJsonObject{{"command", "material.delete"}, {"material", "9"}}) ==
+              "Material #9 does not exist",
+          "material.delete names the missing material");
+    check(encodeDocument(doc) == before, "Refused commands change nothing");
+}
+
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
     try {
@@ -1968,6 +2016,7 @@ int main(int argc, char **argv) {
         rejects([] { commandDescription("internal.commit"); });
         orphanedDefinitionCommands();
         deleteGroupCommand();
+        missingReferenceCommands();
         std::cout << "Command catalog, required/unknown fields, handlers, single-step undo and "
                      "color bounds passed\n";
         return 0;

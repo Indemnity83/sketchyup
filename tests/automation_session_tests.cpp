@@ -127,6 +127,21 @@ int main(int argc, char **argv) {
                      "INVALID_REQUEST");
             rejected(call(session, scoped("document.save", info, {{"expectedRevision", "1"}})),
                      "STALE_REVISION");
+            // D-095: a draft that names a missing body is refused as NOT_FOUND, with the body named.
+            const auto probe = session.execute(
+                scoped("transaction.begin", info, {{"expectedRevision", info["revision"]}}));
+            const auto missing = call(
+                session,
+                scoped("transaction.apply", info,
+                       {{"transactionId", probe["transactionId"]},
+                        {"expectedVersion", 0},
+                        {"operationId", "missing"},
+                        {"commands",
+                         QJsonArray{QJsonObject{
+                             {"command", "tag.assign"}, {"body", "7"}, {"tag", "1"}}}}}));
+            rejected(missing, "NOT_FOUND");
+            check(missing["error"].toObject()["message"] == "Body #7 does not exist",
+                  "Headless session names the missing body");
             sealed = prepare(session, info);
             receipt = session.execute(durable("transaction.commit", info, sealed));
             check(receipt["status"] == "committed", "Headless session commits shared transaction");

@@ -139,7 +139,8 @@ int main(int argc, char **argv) {
             rejects("REQUEST_CONFLICT", [&] { api.execute(conflict); });
             rejects("STALE_STAGE_VERSION",
                     [&] { api.execute(applyRequest(doc, id, 0, "old", {units("mm")})); });
-            rejects("INVALID_OPERATION", [&] {
+            // D-095: a missing body is NOT_FOUND through the transaction path, not a raw lookup.
+            rejects("NOT_FOUND", [&] {
                 api.execute(applyRequest(doc, id, 1, "bad",
                                          {QJsonObject{{"command", "geometry.translate"},
                                                       {"body", "999999"},

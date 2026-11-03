@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Fixed (D-094, Minor, [triage](docs/verification/R089a-defect-triage.md)): with saved-scene tabs visible, the Select tool's hint no longer overlaps the status line at the bottom left of the viewport.
+- Fixed (D-095, Minor, [triage](docs/verification/R089a-defect-triage.md)): a scripted command that names a body, material, tag or component definition the document does not hold fails with `NOT_FOUND` and names it (for example "Body #7 does not exist"), not with the C++ text `map::at`. Successful commands are unchanged.
 
 ## 1.7.0 — 2026-11-02
 
