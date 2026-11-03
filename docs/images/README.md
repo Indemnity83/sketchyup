@@ -1,64 +1,234 @@
-# Repository screenshots
+# Repository images
 
-These PNGs show SketchyUp 1.7.0 for the README. They are all 1440×900 and come from
-a small original showcase house, not from a real project.
+The README shows **Solstice Court**, an original midcentury modern home designed
+and built with SketchyUp's public modeling commands. It is an architectural study,
+not a surveyed site or a construction document. No external project models,
+real addresses, house numbers, city names or branded furniture were used.
 
-- `hero-light.png`, `hero-dark.png`: the hero view (textured house, stairs to a
-  timber deck, sun shadows, the Outliner), in the light and dark themes. The ground
-  rises behind the house.
-- `components.png`: the dining table, a configurable assembly, selected. Its width,
-  depth, height, legs and apron are in the Info panel under "Parameters · this
-  placement". It stands on the deck beside the recipe table.
-- `sheets.png`: the Sheets workspace with sheet A-101 (plan view and perspective view).
-- `terrain.png`: the site terrain with nothing selected and the Sun and shadows panel open.
-- `commands.png`: the Ctrl+K command palette with "export" typed.
+All eight screenshots are actual SketchyUp 1.7.0 windows captured under a private
+Xvfb **inside Docker**. Each is 1440×900, stripped of metadata and below 500 KB.
 
-## Source
+| Image | What it shows |
+| --- | --- |
+| `hero-light.png` | Post-and-beam home, gray roofs with white fascia, pool court and layered garden; light theme and Outliner. |
+| `hero-dark.png` | The same model, camera and sunlight in the dark UI theme. |
+| `components.png` | The library dining table selected, with its editable placement parameters visible. |
+| `sheets.png` | A-101: dimensioned and labeled 1:50 floor plan on A2; four pages in the Pages tree. |
+| `terrain.png` | Lawn, terrain-draped asphalt and gravel, planting and low garden walls, with the late-afternoon Sun and shadows panel. |
+| `commands.png` | Ctrl+K palette with `export` typed over the home. |
+| `section.png` | Close section perspective through the living room, hearth and kitchen, with roofs, glazing and landscape hidden. |
+| `interior.png` | Living room, stone fireplace, walnut ceiling and furniture, teal sofa and mustard lounge chair. |
+| `render.png` | 1440×900 low garden view across the pool, rendered with the unchanged Blender adapter and generated HDR sky; palette-quantized below 500 KB. |
+| `social-preview.jpg` | 1280×640 brand panel beside the same Blender Cycles render (HIP, RX 6800 XT); under 1 MB, metadata stripped. |
 
-The model is built from two CLI scripts:
+## Model sources
 
-- `showcase.json`: the house, deck, stairs, recipe table, terrain, dimensions, textured
-  materials (textures from `resources/textures/`, embedded as base64), saved scenes
-  Hero, Plan, Site and Sheet perspective, and sun shadows. The terrain's back edge is
-  5 m above its front edge, so the ground rises behind the house.
-- `showcase-sheet.json`: sheet A-101 with its plan and perspective views and title text.
-  Drawing sheet operations cannot share a batch with model operations, so this is a
-  second batch.
+[`showcase/build_showcase.py`](showcase/build_showcase.py) emits bounded, readable
+JSON command batches and executes them through `sketchyup-cli --script`. The old
+monolithic `showcase.json` and `showcase-sheet.json` have been replaced.
+Generated batches, native documents, logs and render manifests belong in `.local/`.
 
-The dining table is not in the scripts: `catalog.import` reads only `.sketchycat`
-catalogs, not the bundled assembly library. The components shot places it in the app,
-at (1.6, −0.95, 0.6) m, by choosing it in the Components list and typing that position
-into the Measurements box.
+The generator uses only this repository's sources:
 
-The model shots use the Paint tool (B). In 1.7.0 the Select tool's hint line overlaps the
-status line when the saved-scene tabs are shown (D-094, fixed on `main` after 1.7.0 in
-[#569](https://github.com/zygote55/sketchyup/pull/569)), and Orbit and Pan draw a camera
-hint of their own, so Paint keeps the viewport clean. Once a release includes the fix,
-build the image for that release and drop the workaround from
-`scripts/capture-screenshots.sh`.
+- Seven textures in `resources/textures/`: wood-dark-oak, stone-rubble-wall,
+  gravel, grass, asphalt, metal-corrugated and fabric-wool-herringbone. Texture
+  bytes are injected at generation time, never checked in again as base64.
+- The dining table, bookshelf, base cabinet and cutting casement window from
+  `resources/assemblies/`. Their public command sources are rebased into this
+  document; no catalog import or GUI placement is needed.
+- Original generic furniture and geometry, including a width-driven credenza,
+  pierced breeze blocks, posts, beams and dining chairs. The detail pass adds shared
+  agaves, ribbed barrel cacti, shrubs, folded ornamental grasses, shade trees,
+  boulders, stepping stones, joinery, bar stools, lighting and outdoor furniture.
+- A small seeded terrazzo texture generated by `showcase/terrazzo_texture.py`;
+  no external texture download is required.
+
+The model has 35,742 materialized vertices, 12,515 faces, 28 definitions and 247
+placements, with most new geometry in shared components. Five definitions remain
+configurable (nine placements): four library
+assemblies plus the original credenza. `stats.json` records actual topology counts,
+definitions, placements and build duration; `document.json` retains the inspection.
+
+The model demonstrates push/pull, offset, Follow Me, solid subtraction, an arc,
+a linear array, mirrored placement, groups, components, parameters, a hosted
+window cutting a solid wall, tag folders, transparent materials, terrain stamping,
+sculpting and draped overlays. Plant and stepping-stone elevations are sampled
+with `terrain.elevation_at`, so they follow the graded ground. Eight saved scenes include an eye-level terrace,
+an interior, section perspective, monochrome plan and elevation. Four A2 sheets
+contain a cover, 1:50 plan, elevation/terrace views and section perspective.
+
+Sun coordinates are generic (32° N, 110° W; UTC−07), with no geographic site
+origin or address. The study uses 15 April 2026 at 16:30 local time, with long afternoon shadows.
 
 ## Regenerate
 
-Build the screenshot image from `scripts/screenshots.Dockerfile`. It installs the
-SketchyUp 1.7.0 package from the GitHub release, checks it against that release's
-`SHA256SUMS`, and adds Xvfb, xdotool and ImageMagick. The build needs network access.
-Its context is `packaging/arch`, which supplies the pinned mirror list. Building with the
-tag `sketchyup-shots:1.7.0` replaces any local image with that tag.
+Run from the repository root. Check memory and disk first; run only one capture
+container at a time. The Dockerfile installs the release package, verifies its
+SHA256SUMS, and includes Python, Xvfb, xdotool, ImageMagick and fonts.
 
 ```sh
-docker build -f scripts/screenshots.Dockerfile --build-arg SKETCHYUP_VERSION=1.7.0 \
+ulimit -c 0
+timeout 10 free -g
+timeout 10 df -h .
+timeout 600 docker build -f scripts/screenshots.Dockerfile \
+  --build-arg SKETCHYUP_VERSION=1.7.0 \
   -t sketchyup-shots:1.7.0 packaging/arch
 ```
 
-Then run the capture. `scripts/capture-screenshots.sh` builds both scripts into a
-temporary directory, starts its own Xvfb with an isolated home directory for each shot,
-drives SketchyUp through the shot list, and writes the PNGs:
+Build the model separately with an installed SketchyUp 1.7.0 CLI:
 
 ```sh
-docker run --rm --network none --memory 3g --cpus 2 --user "$(id -u):$(id -g)" \
-  -v "$PWD":/src:ro -v "$PWD/docs/images":/out sketchyup-shots:1.7.0 \
-  /src/scripts/capture-screenshots.sh /out
+timeout 300 python3 docs/images/showcase/build_showcase.py .local/showcase-build
 ```
 
-CI does not run this script. Rerun it after a change to the model or the UI, and
-commit the new PNGs with the change.
+The capture builds the model itself, starts a fresh app/profile for each shot,
+saves the temporary model after recalling a scene (so its header says Saved),
+and regenerates **all eight PNGs in one run**. It refuses to run outside Docker.
+An optional mount preserves the native model and build statistics:
+
+```sh
+mkdir -p .local/capture-build
+timeout 900 docker run --rm --network none \
+  --memory 4g --memory-swap 4g --cpus 2 --user "$(id -u):$(id -g)" \
+  -v "$PWD":/src:ro -v "$PWD/docs/images":/out \
+  -v "$PWD/.local/capture-build":/build -e SHOWCASE_BUILD_OUT=/build \
+  sketchyup-shots:1.7.0 /src/scripts/capture-screenshots.sh /out
+```
+
+For capture development only, `SHOWCASE_SHOTS=components,sheets` selects a subset.
+Release the full image set only after a clean run without this filter and a visual
+inspection of every output.
+
+### Portable render handoff
+
+Run **only the export step on the modeling machine**. It builds the model and
+captures a complete immutable GLB snapshot, without finding or invoking Blender:
+
+```sh
+timeout 450 scripts/render-showcase.sh export .local/render-input --samples 256
+```
+
+Use `--cli /absolute/path/to/sketchyup-cli` (or `SKETCHYUP_CLI`) for a local build.
+The output contains `showcase.sketchyup`, build statistics, portable `settings.json`,
+the generated sky, `snapshot/` with all captured assets, the **unchanged** Blender
+adapter, and `bundle.json` with SHA-256 checksums. Copy the entire directory to the
+rendering machine. No source-machine path is needed there. Use a fresh output
+directory for every export, probe and render.
+
+On the separate Linux GPU machine, check out this branch and place the bundle at
+`.local/render-input/`. Blender **5.2.2**, Python 3.10+ and a user systemd session are
+required. HIP also needs a Blender build and driver that expose the AMD GPU.
+These commands invoke Blender and belong **only on the rendering machine**:
+
+```sh
+# Inspect the RX 6800 XT's actual HIP device ID.
+timeout 180 scripts/render-showcase.sh probe .local/hip-probe \
+  --backend HIP --blender /usr/bin/blender --timeout 120
+
+# A sole HIP device is selected automatically; multiple devices require
+# --device-id with an exact ID printed by the probe. No CPU fallback occurs.
+timeout 1500 scripts/render-showcase.sh render .local/render-input .local/render-hip \
+  --backend HIP --blender /usr/bin/blender --samples 256 \
+  --publish docs/images/render.png
+
+# Compose the social image only after the parent has reviewed the GPU render.
+timeout 60 scripts/make-social-preview.sh \
+  .local/render-hip/image.png docs/images/social-preview.jpg
+```
+
+`--backend CPU` selects CPU rendering; `--blender` (or `BLENDER`) accepts an
+alternate executable path. `--samples 1..1024` on export sets the captured sample
+count. On render, omit it to retain that count. If it differs, the script uses
+`--cli`/`SKETCHYUP_CLI` to export a **new** snapshot from the bundled native model,
+camera and sky, preserving the original snapshot. It never patches the manifest.
+
+Both backends run the unchanged adapter with at most four CPU threads under
+`MemoryMax=8G`, `MemorySwapMax=0`, and a default 1,200-second timeout (`--timeout`
+can override it). The render directory retains `request.json`, `result.json`,
+`image.png`, `elapsed.json`, the probe and logs. `--publish` is optional and only
+strips metadata and quantizes the actual render to a 1440×900 PNG below 500 KB;
+rendering does not otherwise overwrite repository images or the social preview.
+
+Settings: Cycles, seed 17, 1440×900, Standard transform, no denoising (the adapter's
+fixed policy), and the model's solar lighting. The original 512×256 Radiance sky
+comes from `showcase/sky_environment.py`: blue zenith, warm horizon, muted ground,
+strength 0.65, rotation 0°. No HDR binary is committed. The low garden camera is
+at `[-10,-20,6]`, looking at `[5,1,1.9]`, with a 43° vertical field of view.
+The directional sun keeps the adapter's color; warmth comes from the environment
+and materials. The native sun study is 15 April 2026, 16:30 UTC−07, with a 28.54°
+solar elevation and long shadows.
+
+The current `render.png` and `social-preview.jpg` come from the final export bundle, rendered
+on the separate GPU machine on 2026-11-02: Blender 5.2.2 LTS, Cycles **HIP on an AMD Radeon RX
+6800 XT**, 256 samples, seed 17, 1440×900, no denoising, through the unchanged adapter
+(`scripts/render-showcase.sh render … --backend HIP`). The render took 33 seconds. The adapter's
+result reported the HIP device, and its image SHA-256 matched the file.
+
+That machine's Blender build needed one extra library for its NumPy, `libcblas.so.3`, which the
+glTF importer loads. Without it the import fails with `ImportError: libcblas.so.3`. A Blender
+build with a complete NumPy needs nothing extra.
+
+## Released-product limitations
+
+No product code was changed. These observations and workarounds are relevant
+when reproducing this model:
+
+- D-094: Select hints overlap the scene/status line. Capture clicks the Paint
+  tool before model shots. A scene-tab click retains keyboard focus, so a bare
+  `B` keystroke is not reliable there.
+- Under bare Xvfb, the separate command-palette dialog may not acquire X input
+  focus. Capture waits for the named main window and retries focus while Qt maps
+  it; it also explicitly focuses the palette before typing.
+- Technical sheets refuse more than 10,000 body records, even with landscape
+  hidden: **"Measured drawing exceeds 10000 body records"**. The final model has
+  9,310 bodies. The generator now checks a 9,500-body ceiling with headroom.
+- Technical views also refuse **"Measured drawing exceeds 20000 visible edges"**.
+  The architectural elevation hides the landscape, while perspective sheets keep
+  it. Generator preflight rejects broken measured views before capture. The three
+  perspective sheet views require the desktop viewport for PDF export; headless
+  preflight reports `rasterUnavailable` for those views, as documented by the CLI.
+- Saving runs in a background file operation with a modal progress window. Capture
+  waits until the `Saving model…` window is hidden before opening the palette or
+  taking a screenshot; a fixed delay alone could capture that progress overlay.
+- With the preliminary 10,122-body document under the two-CPU software-GL capture, clicking
+  the table in the viewport did not process subsequent input within the 30-second
+  palette wait. Capture selects `Dining table` through the Outliner filter instead.
+  The parameter panel and selected placement remain native app UI.
+- Animated scene recall sometimes left the camera between views during capture.
+  The isolated profile uses the existing `reducedMotion=true` setting and zero
+  transition duration. The saved camera itself is unchanged.
+- Painting a resolved component member returns **"Resolved component member
+  disagrees with its definition"**. Paint primitive members before creating the
+  shared definition, as this generator does.
+- Attaching a cutting component to an open host returns **"Opening requires
+  validated closed geometry: open_boundary"**. Extrude the wall first.
+- Creating a section and a scene referencing it in one batch returns **"New scene
+  snapshots require existing body, tag, geometry and section references"**.
+  Create sections before the scene batch. Sheet operations also use a separate batch.
+- Imprinting a drape across a stamped pad returns **"Drape on terrain refused;
+  nothing was changed: inside-pad (6)"**, with **"A building pad protects this
+  area; drape around it or remove its stamp first."** Use an overlay for this drive.
+- A full-turn `geometry.arc_center` returns **"Invalid curve radius, angle or
+  segment count"**. The table ornament uses a supported partial arc.
+- Assigning a material to nonexistent body 1 in an otherwise empty document
+  returns **"map::at"**. This is a poor diagnostic; the generator tracks allocated IDs.
+- Sparse terrain sources with `maxEdgeLength=3` produced **"Stamp pad refused;
+  nothing was changed: outside-outline (1)"**, with **"A footprint point is outside
+  the terrain; pads stay inside the terrain's outline and outside its holes."**
+  The generator leaves the optional edge-length limit unset for this sparse site.
+- Folded leaves must use planar faces. A nonplanar four-point `geometry.face`
+  returns **"Face is not planar"**; split the fold into triangles.
+- More than 100 commands returns **"Batch must contain 1–100 commands"**. The
+  generator splits phases into batches of at most 100.
+- `asset.import` takes `mediaType`, not `mimeType`; the latter returns **"Unknown
+  command parameter"**. The generator uses the published schema.
+- Annotation names must be unique, even when their displayed text is identical:
+  **"Annotation names must be bounded, trimmed and unique"**.
+- Terrain containers do not supply an inherited material to their generated tiles.
+  Assign material to the tile bodies through the public API after grading.
+
+The render transfer report explicitly records omitted wire geometry and annotations
+and the tessellated/omitted analytic curve. There are no missing texture assets.
+Intersect, schedules, 3D text and a sunken conversation pit were not used. This is
+an architectural visualization study with generic furniture, not a permit-ready plan.
+CI does not run these documentation capture scripts.
