@@ -35,8 +35,10 @@ WORKER = "sketchyup-skp-worker"
 PARSER_LIBRARY = re.compile(r"libsketchyup_openskp\.(so|dylib)")
 # Mach-O writes C names with a leading underscore (_mz_zip_...); C++ names match either way.
 PARSER_SYMBOL = re.compile(r"_ZN7openskp|^_?mz_zip_")
+# On macOS, libsandbox is the operating system's sandbox (the helper's Seatbelt layer), as Landlock
+# and seccomp are the kernel's on Linux: it ships with the system and is not a third-party library.
 RUNTIME = ("libc.so.", "libm.so.", "libgcc_s.so.", "libstdc++.so.",
-           "/usr/lib/libSystem.B.dylib", "/usr/lib/libc++.1.dylib")
+           "/usr/lib/libSystem.B.dylib", "/usr/lib/libc++.1.dylib", "/usr/lib/libsandbox.1.dylib")
 ELF = b"\x7fELF"
 MACH_O = (b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe")
 PIN = "23a15e8742e936694bf14aa029cb0e2862dce5b9"

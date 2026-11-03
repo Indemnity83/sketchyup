@@ -1,6 +1,8 @@
-// The kernel layers on a system without Landlock and seccomp (macOS). Every layer fails with
-// ENOSYS, so a helper refuses with "sandboxUnavailable" before it parses anything: the sandbox
-// fails closed (ADR 0183 section 7) rather than running the helper unconfined.
+// The kernel layers on a system without Landlock and seccomp. Every layer fails with ENOSYS, so on
+// a system with no other layer a helper refuses with "sandboxUnavailable" before it parses
+// anything: the sandbox fails closed (ADR 0183 section 7) rather than running the helper
+// unconfined. On macOS the Seatbelt layer (seatbelt.cpp) is installed instead, and only
+// landlockAbiVersion is called.
 #include "sandbox/layers.hpp"
 
 #include <cerrno>
