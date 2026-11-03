@@ -204,6 +204,10 @@ void missingReferenceCommands() {
     check(refusal(QJsonObject{{"command", "material.delete"}, {"material", "9"}}) ==
               "Material #9 does not exist",
           "material.delete names the missing material");
+    // A parent is not one of the named kinds, so the generic refusal applies.
+    check(refusal(QJsonObject{{"command", "scene.reparent"}, {"body", "1"}, {"parent", "9"}}) ==
+              "A referenced entity does not exist",
+          "A missing reference outside the named kinds gets the generic refusal");
     check(encodeDocument(doc) == before, "Refused commands change nothing");
 }
 
