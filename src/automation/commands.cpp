@@ -397,7 +397,7 @@ QJsonObject describe(const Document &doc) {
             {"tags", tags},
             {"nextTagId", QString::number(doc.nextTagId())}};
 }
-QJsonObject executeQuery(const Document &doc, const QJsonObject &request) {
+static QJsonObject answerQuery(const Document &doc, const QJsonObject &request) {
     const auto name = request["query"].toString();
     if (name == "history.describe") {
         fields(request, {"query", "offset", "limit"});
@@ -645,6 +645,18 @@ QJsonObject executeQuery(const Document &doc, const QJsonObject &request) {
     if (name == "capabilities")
         return capabilities();
     throw std::runtime_error("Unavailable query");
+}
+// D-096: the query boundary. A raw `.at()` lookup that finds no entity is refused as NOT_FOUND,
+// and the message names the body, material, tag or component definition the query names, as D-095
+// does for commands. Only that exception changes; success and other errors do not.
+QJsonObject executeQuery(const Document &doc, const QJsonObject &request) {
+    try {
+        return answerQuery(doc, request);
+    } catch (const std::out_of_range &) {
+        const auto missing = missingEntity(doc, request);
+        throw InspectionError("NOT_FOUND",
+                              missing.empty() ? "A referenced entity does not exist" : missing);
+    }
 }
 static QJsonObject executeBatchWithReferences(Document &doc, const QJsonObject &request,
                                               BatchResponse response,
@@ -1047,9 +1059,15 @@ static QJsonObject executeBatchWithReferences(Document &doc, const QJsonObject &
                                                     : std::nullopt);
             } else if (name == "tag.delete")
                 eraseTag(staged, id(command["tag"]));
-            else
+            else {
+                // D-096: a tag that does not exist is NOT_FOUND, named as one. Before this check,
+                // the assignment's validation reported it as a folder. A real folder still fails
+                // there with its own message.
+                if (const auto message = missingEntity(staged, command); !message.empty())
+                    throw InspectionError("NOT_FOUND", message);
                 compose(assignTag(staged, id(command["body"]),
                                   command["tag"] == "0" ? 0 : id(command["tag"])));
+            }
         } else if (name == "scene.rename") {
             if (!command["name"].isString())
                 throw std::runtime_error("Entity name must be a string");

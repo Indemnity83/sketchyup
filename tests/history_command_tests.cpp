@@ -123,6 +123,37 @@ int main(int argc, char **argv) {
         check(cli.waitForFinished(10000) && cli.exitCode() == 0 &&
                   QJsonDocument::fromJson(cli.readAllStandardOutput()).object()["total"] == "0",
               "Headless history query reports reopened checkpoint without invented history");
+        // D-096: the CLI's query and script refusals name the missing entity, with no `map::at`.
+        auto refused = [&](const QStringList &arguments) {
+            cli.start(CLI_PATH, arguments);
+            check(cli.waitForFinished(10000) && cli.exitCode() == 1 &&
+                      cli.readAllStandardOutput().isEmpty(),
+                  "CLI refuses a missing entity with a failed status and no output");
+            return QJsonDocument::fromJson(cli.readAllStandardError()).object();
+        };
+        const auto source = files.filePath("source.sketchyup");
+        const auto contextRefusal =
+            refused({"--input", source, "--query", "geometry.inspect", "--context", "999"});
+        check(contextRefusal["code"] == "NOT_FOUND" &&
+                  contextRefusal["error"] == "Body #999 does not exist",
+              "CLI --query names the missing context body");
+        QFile queryFile(files.filePath("missing-body.json"));
+        check(queryFile.open(QIODevice::WriteOnly) &&
+                  queryFile.write(R"({"query":"geometry.inspect","body":"999"})") > 0,
+              "Write CLI query file");
+        queryFile.close();
+        const auto fileRefusal = refused({"--input", source, "--query-file", queryFile.fileName()});
+        check(fileRefusal["code"] == "NOT_FOUND" &&
+                  fileRefusal["error"] == "Body #999 does not exist",
+              "CLI --query-file names the missing body");
+        QFile tagScript(files.filePath("missing-tag.json"));
+        check(tagScript.open(QIODevice::WriteOnly) &&
+                  tagScript.write(R"([{"command":"tag.assign","body":"1","tag":"9"}])") > 0,
+              "Write CLI tag script");
+        tagScript.close();
+        const auto tagRefusal = refused({"--input", source, "--script", tagScript.fileName()});
+        check(tagRefusal["code"] == "NOT_FOUND" && tagRefusal["error"] == "Tag #9 does not exist",
+              "CLI script names the missing tag instead of reporting a folder");
 #endif
         std::cout << "History API paging, labels, task requests, preview isolation, atomic "
                      "navigation, stale guards and transient metadata passed\n";
