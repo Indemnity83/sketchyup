@@ -54,6 +54,7 @@
 #include <algorithm>
 #include <numbers>
 #include <set>
+#include <stdexcept>
 namespace sketchy {
 namespace {
 QJsonArray array(const QJsonValue &value) {
@@ -226,6 +227,33 @@ QJsonArray tagDescription(const Document &doc) {
                                 {"visible", tag->visible},
                                 {"effectiveVisible", tagVisible(doc.tags(), id)}});
     return tags;
+}
+// D-095: the NOT_FOUND message for the first entity a command names that the document does not
+// hold ("Body #7 does not exist"), or empty when it names none. The names are the catalog's entity
+// references: `body` and `context` name bodies (context 0 is the root), `material`, `tag` and
+// `definition`. A value that is not a canonical ID, or is 0, is left to the command's own checks,
+// so this never throws.
+std::string missingEntity(const Document &doc, const QJsonObject &command) {
+    auto missing = [&](const char *key, const char *label, auto holds) -> std::string {
+        const auto value = command[key];
+        bool ok = false;
+        const auto number = value.toString().toULongLong(&ok);
+        if (!value.isString() || !ok || !number || QString::number(number) != value.toString() ||
+            holds(number))
+            return {};
+        return std::string(label) + " #" + value.toString().toStdString() + " does not exist";
+    };
+    const std::string messages[] = {
+        missing("body", "Body", [&](Id id) { return doc.bodies().contains(id); }),
+        missing("context", "Body", [&](Id id) { return doc.bodies().contains(id); }),
+        missing("material", "Material", [&](Id id) { return doc.materials().contains(id); }),
+        missing("tag", "Tag", [&](Id id) { return doc.tags().contains(id); }),
+        missing("definition", "Component definition",
+                [&](Id id) { return doc.definitions().contains(id); })};
+    for (const auto &message : messages)
+        if (!message.empty())
+            return message;
+    return {};
 }
 } // namespace
 QJsonObject capabilities() {
@@ -768,7 +796,13 @@ static QJsonObject executeBatchWithReferences(Document &doc, const QJsonObject &
             }
         }
     };
-    for (const auto &value : commands) {
+    // D-095: the entity the running command names that the document lacks, read before the command
+    // runs. The catch below reports it when the command's raw lookup throws std::out_of_range.
+    std::string namedMissing;
+    // The command boundary: each command is one try block, so a raw `.at()` lookup that finds no
+    // entity is refused as NOT_FOUND. Only that exception changes; success and other errors do not.
+    for (const auto &value : commands) try {
+        namedMissing = missingEntity(staged, value.toObject());
         if (!value.isObject())
             throw std::runtime_error("Expected command object");
         auto command = value.toObject();
@@ -1842,6 +1876,12 @@ static QJsonObject executeBatchWithReferences(Document &doc, const QJsonObject &
             staged.paint(id(command["body"]), {float(c.x), float(c.y), float(c.z)});
         } else
             throw std::runtime_error("Unavailable command");
+    } catch (const std::out_of_range &) {
+        // D-095: no raw "map::at" text reaches a caller. Name the entity the command names when
+        // the document lacks it; otherwise give the generic refusal.
+        throw InspectionError("NOT_FOUND", namedMissing.empty()
+                                               ? "A referenced entity does not exist"
+                                               : namedMissing);
     }
     const auto assertions = evaluateMeasurementAssertions(staged, assertionCommands);
     Edit edit{historyLabel, {}};
