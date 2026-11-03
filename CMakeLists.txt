@@ -3,6 +3,11 @@ project(SketchyUp VERSION 1.7.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Binary64 without contraction everywhere: a fused multiply-add rounds differently from the multiply
+# and add it replaces, and the geometry's tolerances assume the separate roundings. GCC on x86_64 has
+# no FMA at its baseline target; Clang on arm64 (macOS) fuses by default, and a boolean then fails
+# its own source-plane check.
+add_compile_options(-ffp-contract=off)
 option(SKETCHYUP_BUILD_DESKTOP "Build the native desktop spike" ON)
 option(SKETCHYUP_BUILD_CLI "Build the Qt Core command-line driver" ON)
 option(SKETCHYUP_NATIVE_FIXTURES_IN_ALL "Include opt-in native fixtures in the default build" ON)
