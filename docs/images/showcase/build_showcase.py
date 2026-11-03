@@ -947,7 +947,7 @@ def build(out):
             },
             {
                 "id": b.tags["Roof"],
-                "visible": name not in ("Plan", "Furniture", "Section", "Elevation"),
+                "visible": name not in ("Plan", "Furniture", "Section"),
             },
             {
                 "id": b.tags["Landscape"],
