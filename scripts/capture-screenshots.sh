@@ -122,7 +122,7 @@ focus_window() {
 }
 
 # One fresh SketchyUp process per shot, sized to 1440x900 and driven with xdotool.
-# Steps: key:KEYS, type:TEXT, click:X,Y, move:X,Y, sleep:SECONDS,
+# Steps: key:KEYS, type:TEXT, click:X,Y, move:X,Y, wheel:BUTTON, sleep:SECONDS,
 # palette:ACTION (invoke) or search:TEXT (leave open); separated by semicolons.
 # The viewport tab row is at y=826, the Model/Sheets header and the right panel
 # tabs move with the selection: the Info tab is at y=197 once an entity is selected.
@@ -182,6 +182,7 @@ shot() {
       type:*) xdotool type --clearmodifiers --delay 80 "${p#type:}" ;;
       click:*) IFS=, read -r x y <<< "${p#click:}"; xdotool mousemove "$x" "$y" click 1 ;;
       move:*) IFS=, read -r x y <<< "${p#move:}"; xdotool mousemove "$x" "$y" ;;
+      wheel:*) xdotool keydown ctrl click "${p#wheel:}" keyup ctrl ;;
       sleep:*) sleep "${p#sleep:}" ;;
       "") ;;
       *) echo "capture-screenshots: bad step in $name: $p" >&2; exit 1 ;;
@@ -211,7 +212,7 @@ shots=(
   "hero-dark|2|click:124,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
   "components|1|click:500,826;click:43,170;palette:Outliner;click:1280,216;type:Dining table;click:1280,267;palette:Entity info;key:ctrl+alt+bracketright;click:1220,230;move:640,884;sleep:3"
   "sheets|1|key:ctrl+alt+s;sleep:3;click:304,834;sleep:2;key:shift+z;move:640,884;sleep:3"
-  "terrain|1|click:432,826;click:43,170;palette:Sun and shadows;move:640,884;sleep:3"
+  "terrain|1|click:432,826;click:43,170;palette:Sun and shadows;move:640,470;wheel:5;move:640,884;sleep:3"
   "commands|1|click:124,826;click:43,170;key:ctrl+s;search:export;move:640,884;sleep:3"
   "section|1|click:320,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
   "interior|1|click:250,826;click:43,170;palette:Outliner;move:640,884;sleep:3"
