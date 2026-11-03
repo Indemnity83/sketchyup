@@ -186,6 +186,9 @@ when reproducing this model:
   it. Generator preflight rejects broken measured views before capture. The three
   perspective sheet views require the desktop viewport for PDF export; headless
   preflight reports `rasterUnavailable` for those views, as documented by the CLI.
+- Saving runs in a background file operation with a modal progress window. Capture
+  waits until the `Saving model…` window is hidden before opening the palette or
+  taking a screenshot; a fixed delay alone could capture that progress overlay.
 - With the preliminary 10,122-body document under the two-CPU software-GL capture, clicking
   the table in the viewport did not process subsequent input within the 30-second
   palette wait. Capture selects `Dining table` through the Outliner filter instead.

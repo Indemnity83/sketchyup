@@ -151,6 +151,27 @@ shot() {
   xdotool windowmove "$wid" 0 0 windowsize "$wid" 1440 900
   sleep 5
   focus_window "$wid"
+  wait_for_file_idle() {
+    # The released app exposes a noninteractive modal progress window while its
+    # background save/open runs. Do not send input through that modal window.
+    sleep 1
+    for _ in $(seq 1 120); do
+      if ! timeout 3 xdotool search --onlyvisible --all --pid "$apid" \
+          --name '^(Saving|Opening) model' >/dev/null 2>&1; then
+        return 0
+      fi
+      sleep 1
+    done
+    echo "capture-screenshots: file operation did not finish for $name" >&2
+    return 1
+  }
+  save_model() {
+    focus_window "$wid"
+    xdotool key --clearmodifiers ctrl+s
+    wait_for_file_idle
+    focus_window "$wid"
+  }
+  wait_for_file_idle
   local parts p x y
   IFS=';' read -ra parts <<< "$steps"
   for p in "${parts[@]}"; do
@@ -178,6 +199,7 @@ shot() {
           focus_window "$wid"
         fi
         ;;
+      key:ctrl+s) save_model ;;
       key:*) xdotool key --clearmodifiers "${p#key:}" ;;
       type:*) xdotool type --clearmodifiers --delay 80 "${p#type:}" ;;
       click:*) IFS=, read -r x y <<< "${p#click:}"; xdotool mousemove "$x" "$y" click 1 ;;
@@ -192,8 +214,7 @@ shot() {
   # Scene recall changes document state; save the disposable copy before capture.
   # The command palette is saved before opening it instead.
   if [[ $name != commands ]]; then
-    focus_window "$wid"
-    xdotool key --clearmodifiers ctrl+s
+    save_model
   fi
   sleep 3
   import -window root "$work/shots/$name.png"
