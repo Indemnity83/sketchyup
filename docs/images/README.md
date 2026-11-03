@@ -19,7 +19,7 @@ Xvfb **inside Docker**. Each is 1440×900, stripped of metadata and below 500 KB
 | `section.png` | Close section perspective through the living room, hearth and kitchen, with roofs, glazing and landscape hidden. |
 | `interior.png` | Living room, stone fireplace, walnut ceiling and furniture, teal sofa and mustard lounge chair. |
 | `render.png` | 1440×900 low garden view across the pool, rendered with the unchanged Blender adapter and generated HDR sky; palette-quantized below 500 KB. |
-| `social-preview.jpg` | 1280×640 brand panel beside an actual Blender Cycles CPU render of the same model; under 1 MB, metadata stripped. |
+| `social-preview.jpg` | 1280×640 brand panel beside the same Blender Cycles render (HIP, RX 6800 XT); under 1 MB, metadata stripped. |
 
 ## Model sources
 
@@ -158,14 +158,15 @@ The directional sun keeps the adapter's color; warmth comes from the environment
 and materials. The native sun study is 15 April 2026, 16:30 UTC−07, with a 28.54°
 solar elevation and long shadows.
 
-The current render and social preview show the slightly denser planting study
-from before the measured-drawing body-budget adjustment. They were made on CPU
-**before** the owner moved
-rendering to the separate GPU machine (160 samples, 379 seconds, four threads).
-The social preview was left untouched after that instruction. The parent replaces
-it from the GPU output; `make-social-preview.sh` accepts any input render path and
-uses the truthful backend-neutral caption “Rendered with Blender / Cycles”.
-The actual HIP run must be verified on that machine; it was not run here.
+The current `render.png` and `social-preview.jpg` come from the final export bundle, rendered
+on the separate GPU machine on 2026-11-02: Blender 5.2.2 LTS, Cycles **HIP on an AMD Radeon RX
+6800 XT**, 256 samples, seed 17, 1440×900, no denoising, through the unchanged adapter
+(`scripts/render-showcase.sh render … --backend HIP`). The render took 33 seconds. The adapter's
+result reported the HIP device, and its image SHA-256 matched the file.
+
+That machine's Blender build needed one extra library for its NumPy, `libcblas.so.3`, which the
+glTF importer loads. Without it the import fails with `ImportError: libcblas.so.3`. A Blender
+build with a complete NumPy needs nothing extra.
 
 ## Released-product limitations
 
