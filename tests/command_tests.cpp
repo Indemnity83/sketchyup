@@ -175,6 +175,10 @@ void missingReferenceCommands() {
     executeBatch(doc, batch({QJsonObject{{"command", "material.create"},
                                          {"name", "Red"},
                                          {"color", QJsonArray{1, 0, 0}}}}));
+    // Tag 1 is a tag and tag 2 is a folder, so tag.assign can name each kind.
+    executeBatch(doc, batch({QJsonObject{{"command", "tag.create"}, {"name", "Walls"}}}));
+    executeBatch(doc, batch({QJsonObject{
+                          {"command", "tag.create"}, {"name", "Levels"}, {"folder", true}}}));
     const auto before = encodeDocument(doc);
     // The message of the refusal a one-command batch gets; a batch that succeeds fails the test.
     auto refusal = [&](QJsonObject command) {
@@ -208,6 +212,44 @@ void missingReferenceCommands() {
     check(refusal(QJsonObject{{"command", "scene.reparent"}, {"body", "1"}, {"parent", "9"}}) ==
               "A referenced entity does not exist",
           "A missing reference outside the named kinds gets the generic refusal");
+    // D-096: a tag that does not exist is NOT_FOUND, not the folder message.
+    check(refusal(QJsonObject{{"command", "tag.assign"}, {"body", "1"}, {"tag", "9"}}) ==
+              "Tag #9 does not exist",
+          "tag.assign names the missing tag");
+    // D-096: a folder is still refused by the assignment check, with the folder message.
+    std::string folderMessage;
+    try {
+        executeBatch(doc,
+                     batch({QJsonObject{{"command", "tag.assign"}, {"body", "1"}, {"tag", "2"}}}));
+    } catch (const std::runtime_error &error) {
+        folderMessage = error.what();
+    }
+    check(folderMessage == "Entity tag must reference a tag, not a folder",
+          "tag.assign still refuses a folder with the folder message");
+    // D-096: a query that names a missing entity is refused as NOT_FOUND, naming it. The CLI's
+    // --query and --query-file both run executeQuery.
+    auto queryRefusal = [&](QJsonObject query) {
+        try {
+            executeQuery(doc, query);
+        } catch (const InspectionError &error) {
+            const std::string message = error.what();
+            check(error.code() == "NOT_FOUND",
+                  "A query that names a missing entity is refused as NOT_FOUND");
+            check(message.find("map::at") == std::string::npos,
+                  "No query refusal carries the raw map::at text");
+            return message;
+        }
+        throw std::runtime_error("A query that names a missing entity must not succeed");
+    };
+    check(queryRefusal(QJsonObject{{"query", "geometry.inspect"}, {"body", "999"}}) ==
+              "Body #999 does not exist",
+          "geometry.inspect names the missing body");
+    check(queryRefusal(QJsonObject{{"query", "material.sample"}, {"body", "999"}, {"face", "1"}}) ==
+              "Body #999 does not exist",
+          "material.sample names the missing body");
+    check(queryRefusal(QJsonObject{{"query", "component.inspect"}, {"definition", "999"}}) ==
+              "Component definition #999 does not exist",
+          "component.inspect names the missing component definition");
     check(encodeDocument(doc) == before, "Refused commands change nothing");
 }
 
