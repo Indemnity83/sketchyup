@@ -369,6 +369,7 @@ if(BUILD_TESTING)
   add_test(NAME parameter_expression_symbols
            COMMAND ${CMAKE_COMMAND} -DNM=${CMAKE_NM}
                    -DLIBRARY=$<TARGET_FILE:sketchyup_parameter_expression>
+                   -DSYMBOL_PREFIX=$<$<PLATFORM_ID:Darwin>:_>
                    -P ${CMAKE_CURRENT_SOURCE_DIR}/tests/parameter_expression_symbols.cmake)
   add_executable(push_pull_tests tests/push_pull_tests.cpp)
   target_link_libraries(push_pull_tests PRIVATE sketchyup_core)
