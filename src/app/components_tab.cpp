@@ -1,5 +1,6 @@
 #include "app/components_tab.hpp"
 #include "app/collapsible_section.hpp"
+#include "app/item_activation.hpp"
 #include "app/parameter_value_field.hpp"
 #include "automation/component_parameter_commands.hpp"
 #include "io/component_library.hpp"
@@ -265,6 +266,7 @@ ComponentsTab::ComponentsTab(Document &doc, Viewport &view, QWidget *parent)
         if (!detached_)
             refresh();
     });
+    activateOnReturn(cards_);
     connect(cards_, &QListView::activated, this, [this](const QModelIndex &index) {
         start(index.data(CardRole).toInt());
     });

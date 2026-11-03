@@ -1,3 +1,4 @@
+#include "app/item_activation.hpp"
 #include "app/keypad_decimal.hpp"
 #include "app/unit_display.hpp"
 #include "app/window.hpp"
@@ -173,6 +174,7 @@ void Window::libraryDialog(bool templates) {
     });
     connect(search, &QLineEdit::textChanged, &dialog, filter);
     connect(list, &QListWidget::currentRowChanged, &dialog, selected);
+    activateOnReturn(list);
     connect(list, &QListWidget::itemActivated, &dialog, [accept] {
         if (accept->isEnabled())
             QMetaObject::invokeMethod(accept, "click", Qt::QueuedConnection);

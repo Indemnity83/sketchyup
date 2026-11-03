@@ -1,4 +1,5 @@
 #include "app/catalog_dialog.hpp"
+#include "app/item_activation.hpp"
 
 #include "app/catalog_report.hpp"
 #include "app/component_definition_section.hpp"
@@ -512,6 +513,7 @@ CatalogDialog::CatalogDialog(Document &doc, Viewport &view, QWidget *parent)
     connect(kind_, &QComboBox::currentIndexChanged, this, [this] { rebuildTree(); });
     connect(list_, &QTreeWidget::itemSelectionChanged, this, &CatalogDialog::selectionChanged);
     connect(list_, &QTreeWidget::currentItemChanged, this, [this] { showDetails(); });
+    activateOnReturn(list_);
     connect(list_, &QTreeWidget::itemActivated, this, [this] {
         if (insertEnabled_)
             insertSelected();

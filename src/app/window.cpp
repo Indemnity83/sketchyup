@@ -8,6 +8,7 @@
 #include "app/focus_ring.hpp"
 #include "app/inspection_service.hpp"
 #include "app/interface_preferences.hpp"
+#include "app/item_activation.hpp"
 #include "app/keyboard_navigation.hpp"
 #include "app/keypad_decimal.hpp"
 #include "app/presentations_dialog.hpp"
@@ -2089,6 +2090,7 @@ void Window::palette() {
         dialog.accept();
     };
     connect(query, &QLineEdit::returnPressed, &dialog, accept);
+    activateOnReturn(list);
     connect(list, &QListWidget::itemActivated, &dialog, [&](QListWidgetItem *) { accept(); });
     query->setFocus();
     if (dialog.exec() == QDialog::Accepted && chosen) {

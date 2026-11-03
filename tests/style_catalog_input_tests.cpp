@@ -935,8 +935,11 @@ void largeText(const QTemporaryDir &files, const QMap<QString, QByteArray> &fixt
             // At 100 % the list sits beside its details when the dialog is wide, and stacks when
             // narrow.
             Preferences().setValue("interfaceTextPercent", 100);
-            dialog.resize(1020, 700); // a size change, so the layout is decided again
-            dialog.resize(1040, 700);
+            // A size change, so the layout is decided again: two wide sizes, both above the
+            // dialog's minimum, which follows the platform's font (wider on macOS).
+            const int wide = std::max(1040, dialog.minimumWidth() + 20);
+            dialog.resize(wide - 20, 700);
+            dialog.resize(wide, 700);
             check(QTest::qWaitFor([&] { return split->orientation() == Qt::Horizontal; }, 3000),
                   "At 100% a wide dialog puts the list beside its details");
         });
