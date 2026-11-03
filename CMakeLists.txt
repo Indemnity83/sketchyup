@@ -505,8 +505,8 @@ if(SKETCHYUP_BUILD_DESKTOP OR SKETCHYUP_BUILD_CLI OR SKETCHYUP_BUILD_FUZZERS)
     add_test(NAME extension_worker COMMAND extension_worker_tests)
     # R109 S4 (ADR 0183): the extension worker under its sandbox, against the same code run unsandboxed in
     # this process, under the stdio setups of section 4.5; the attack probes; the refusals; the host's classes.
-    # Landlock and seccomp are Linux kernel features: elsewhere the sandbox only refuses.
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Landlock and seccomp on Linux, a Seatbelt profile on macOS; elsewhere the sandbox only refuses.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
       add_executable(extension_sandbox_tests tests/extension_sandbox_tests.cpp)
       target_link_libraries(extension_sandbox_tests PRIVATE sketchyup_io sketchyup_sandbox)
       target_compile_definitions(extension_sandbox_tests PRIVATE SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
@@ -707,8 +707,8 @@ if(SKETCHYUP_BUILD_DESKTOP OR SKETCHYUP_BUILD_CLI OR SKETCHYUP_BUILD_FUZZERS)
     add_test(NAME text_worker COMMAND text_worker_tests)
     # R109 S3 (ADR 0183): the text helper under its sandbox, against the same code run unsandboxed in a child
     # process; the attack probes; the refusals; the host's classes and its private directory and locale.
-    # Landlock and seccomp are Linux kernel features: elsewhere the sandbox only refuses.
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Landlock and seccomp on Linux, a Seatbelt profile on macOS; elsewhere the sandbox only refuses.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
       add_executable(text_sandbox_tests tests/text_sandbox_tests.cpp)
       target_link_libraries(text_sandbox_tests PRIVATE sketchyup_io sketchyup_text sketchyup_sandbox)
       target_compile_definitions(text_sandbox_tests PRIVATE TEXT_WORKER_PATH="$<TARGET_FILE:sketchyup-text-worker>")
@@ -768,8 +768,8 @@ if(SKETCHYUP_BUILD_DESKTOP OR SKETCHYUP_BUILD_CLI OR SKETCHYUP_BUILD_FUZZERS)
     add_test(NAME blender_job COMMAND blender_job_tests)
     # R109 S5 (ADR 0183): the Blender job's child under its sandbox. The stand-ins are copies of
     # blender_job_tests, so it builds after it. --real compares the probes with an unsandboxed Blender.
-    # Landlock and seccomp are Linux kernel features: elsewhere the sandbox only refuses.
-    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    # Landlock and seccomp on Linux, a Seatbelt profile on macOS; elsewhere the sandbox only refuses.
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
       add_executable(blender_sandbox_tests tests/blender_sandbox_tests.cpp)
       target_link_libraries(blender_sandbox_tests PRIVATE sketchyup_render sketchyup_sandbox)
       target_compile_definitions(blender_sandbox_tests PRIVATE SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
@@ -927,14 +927,23 @@ if(SKETCHYUP_BUILD_DESKTOP OR SKETCHYUP_BUILD_CLI OR SKETCHYUP_BUILD_FUZZERS)
     add_test(NAME skp_package COMMAND skp_package_tests)
     # R109.a (ADR 0183): the sandbox library on its own (the kill default, the explicit errno entries, the
     # Landlock grants and the injected failures), each check in a forked child.
-    # Landlock and seccomp are Linux kernel features: elsewhere the sandbox only refuses.
+    # Landlock and seccomp are Linux kernel features. On macOS the same policies are a Seatbelt profile,
+    # and seatbelt_tests checks it (the grants, exec, fork, network, signals and the refusals).
     if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
       add_executable(sandbox_tests tests/sandbox_tests.cpp)
       target_link_libraries(sandbox_tests PRIVATE sketchyup_sandbox)
       target_include_directories(sandbox_tests PRIVATE src tests)
       add_test(NAME sandbox COMMAND sandbox_tests)
+    elseif(APPLE)
+      add_executable(seatbelt_tests tests/seatbelt_tests.cpp)
+      target_link_libraries(seatbelt_tests PRIVATE sketchyup_sandbox)
+      target_include_directories(seatbelt_tests PRIVATE src tests)
+      add_test(NAME sandbox COMMAND seatbelt_tests)
+    endif()
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
       # R109 S6 (ADR 0183 decision 9): the required fast-tier check that the runner can install the sandbox
-      # (Landlock, PR_SET_NO_NEW_PRIVS and a seccomp filter). It never skips: a failure is a red CI verdict.
+      # (Landlock, PR_SET_NO_NEW_PRIVS and a seccomp filter; Seatbelt on macOS). It never skips: a failure
+      # is a red CI verdict.
       add_executable(sandbox_available_tests tests/sandbox_available_tests.cpp)
       target_link_libraries(sandbox_available_tests PRIVATE sketchyup_sandbox)
       target_include_directories(sandbox_available_tests PRIVATE src)
@@ -959,8 +968,8 @@ if(SKETCHYUP_BUILD_DESKTOP OR SKETCHYUP_BUILD_CLI OR SKETCHYUP_BUILD_FUZZERS)
       set_tests_properties(skp_import_real PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 120)
       # R109.a/S1 (ADR 0183): the helper under its sandbox, against the same fixtures and against the
       # unsandboxed run of the same code; the attack probes; the fail-closed refusals; the host's classes.
-      # Landlock and seccomp are Linux kernel features: elsewhere the sandbox only refuses.
-      if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+      # Landlock and seccomp on Linux, a Seatbelt profile on macOS; elsewhere the sandbox only refuses.
+      if(CMAKE_SYSTEM_NAME STREQUAL "Linux" OR APPLE)
         add_executable(skp_sandbox_tests tests/skp_sandbox_tests.cpp)
         target_link_libraries(skp_sandbox_tests PRIVATE sketchyup_io sketchyup_skp sketchyup_sandbox)
         target_include_directories(skp_sandbox_tests PRIVATE src tests)

@@ -21,6 +21,7 @@
 #include <chrono>
 #include <cmath>
 #include <condition_variable>
+#include <csignal>
 #include <cstdlib>
 #include <fstream>
 #include <future>
@@ -302,7 +303,10 @@ int fake(const QString &stated, const QStringList &args) {
 #ifdef __linux__
         ptrace(PTRACE_TRACEME, 0, nullptr, nullptr);
 #else
-        ptrace(PT_TRACE_ME, 0, nullptr, 0);
+        // macOS: Seatbelt refuses an action with EPERM and never kills (blender_sandbox_tests
+        // checks the refusals), so the stand-in ends itself with the signal Linux's filter sends,
+        // and the job's classes are checked the same way.
+        raise(SIGSYS);
 #endif
         return 0;
     }
