@@ -61,7 +61,9 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#if QT_CONFIG(wayland)
 #include <wayland-client.h>
+#endif
 
 #include <QAbstractButton>
 #include <QCheckBox>
@@ -1253,6 +1255,9 @@ void selectionBudget(Window &window, const QTemporaryDir &files) {
 // new-id proxy, and libwayland leaks it when it releases the queue (D-072). Off Wayland there is
 // nothing to drain.
 bool drainWaylandEvents() {
+#if !QT_CONFIG(wayland)
+    return true;
+#else
     auto *native = qGuiApp->nativeInterface<QNativeInterface::QWaylandApplication>();
     if (!native)
         return true;
@@ -1267,6 +1272,7 @@ bool drainWaylandEvents() {
     wl_callback_add_listener(callback, &listener, &answered);
     wl_display_flush(native->display());
     return QTest::qWaitFor([&] { return answered; }, 5000);
+#endif
 }
 } // namespace
 

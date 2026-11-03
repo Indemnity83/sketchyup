@@ -299,7 +299,11 @@ int fake(const QString &stated, const QStringList &args) {
     // stand-in with SIGSYS, which the job reports as sandboxViolation. abort: an ordinary crash,
     // which stays a crash.
     if (mode == "violate") {
+#ifdef __linux__
         ptrace(PTRACE_TRACEME, 0, nullptr, nullptr);
+#else
+        ptrace(PT_TRACE_ME, 0, nullptr, 0);
+#endif
         return 0;
     }
     if (mode == "abort")

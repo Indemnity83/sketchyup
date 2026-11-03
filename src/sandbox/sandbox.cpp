@@ -4,7 +4,9 @@
 
 #include <cerrno>
 #include <cstring>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif
 #include <unistd.h>
 
 namespace sketchyup::sandbox {
@@ -40,8 +42,12 @@ std::optional<Failure> PreparedPolicy::enter() noexcept {
     if (simulated && simulated->layer == Layer::noNewPrivileges)
         return simulated;
     // Landlock and seccomp both need no_new_privs for an unprivileged process.
+#ifdef __linux__
     if (::prctl(PR_SET_NO_NEW_PRIVS, 1UL, 0UL, 0UL, 0UL) != 0)
         return Failure{Layer::noNewPrivileges, errno};
+#else
+    return Failure{Layer::noNewPrivileges, ENOSYS};
+#endif
     // Landlock before seccomp: restricting with the ruleset is a call the filter must not stop.
     if (impl_->rulesetFd < 0)
         return Failure{Layer::landlock, EBADF};

@@ -4,7 +4,9 @@
 // system calls only: PreparedPolicy::enter runs them after fork().
 #include "sandbox/sandbox.hpp"
 
+#ifdef __linux__
 #include <linux/filter.h>
+#endif
 
 #include <cstddef>
 #include <optional>
@@ -26,7 +28,9 @@ std::optional<Failure> restrictWithRuleset(int rulesetFd) noexcept;
 // own-process rule); they are filled in when the filter is installed, in the process that installs
 // it.
 struct Filter {
+#ifdef __linux__
     std::vector<sock_filter> program;
+#endif
     std::vector<std::size_t> selfSlots;
 };
 

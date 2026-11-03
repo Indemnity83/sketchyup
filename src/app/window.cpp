@@ -62,7 +62,9 @@
 #include <QtGui/qguiapplication_platform.h>
 #include <map>
 #include <tuple>
+#if QT_CONFIG(wayland)
 #include <wayland-client.h>
+#endif
 namespace sketchy {
 namespace {
 class ElidedLabel final : public QLabel {
@@ -98,6 +100,7 @@ void resizeContextLabels(QWidget *window) {
         hint->setMinimumHeight(hint->heightForWidth(hint->width()));
     }
 }
+#if QT_CONFIG(wayland)
 class WindowUnmapBarrier final : public QObject {
     wl_callback *callback_{};
     std::function<void()> finish_;
@@ -137,6 +140,7 @@ class WindowUnmapBarrier final : public QObject {
             wl_callback_destroy(callback_);
     }
 };
+#endif
 // R091.h: a modal prompt or the file-operation surface owned by the window hands activation
 // back to it when it closes. Without a window manager (X11 under Xvfb) nothing else does: the
 // application is left with no active window and no focus widget, so keys go nowhere. The
